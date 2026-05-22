@@ -207,9 +207,6 @@ E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\dotnet
 E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\icudt_CJK.tjcz0u77k5.dat
 E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\icudt_EFIGS.tptq2av103.dat
 E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\icudt_no_CJK.lfu7j35m59.dat
-E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\SponsorshipWeb.2x70l77s0o.wasm
-E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\SponsorshipWeb.8mcbeths92.pdb
-E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\dotnet.wyazmmiwwa.js
 E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\blazor.webassembly.958z1vx7fr.js.gz
 E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\Microsoft.AspNetCore.Authorization.s5zxhf8cpw.wasm.gz
 E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\Microsoft.AspNetCore.Components.xp2g4rd365.wasm.gz
@@ -418,9 +415,6 @@ E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\dotnet
 E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\icudt_CJK.tjcz0u77k5.dat.gz
 E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\icudt_EFIGS.tptq2av103.dat.gz
 E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\icudt_no_CJK.lfu7j35m59.dat.gz
-E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\SponsorshipWeb.2x70l77s0o.wasm.gz
-E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\SponsorshipWeb.8mcbeths92.pdb.gz
-E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\dotnet.wyazmmiwwa.js.gz
 E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\SponsorshipWeb.staticwebassets.runtime.json
 E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\SponsorshipWeb.staticwebassets.endpoints.json
 E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\SponsorshipWeb.dll
@@ -1111,10 +1105,6 @@ E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\compressed\zbb4tu793s-{0}
 E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\compressed\kbh7teuhl6-{0}-tjcz0u77k5-tjcz0u77k5.gz
 E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\compressed\betdnhnlkt-{0}-tptq2av103-tptq2av103.gz
 E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\compressed\fjhgxw0ih7-{0}-lfu7j35m59-lfu7j35m59.gz
-E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\compressed\qhh2knalmi-{0}-2x70l77s0o-2x70l77s0o.gz
-E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\compressed\jv7z3rw74u-{0}-8mcbeths92-8mcbeths92.gz
-E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\compressed\em95282yl1-{0}-wyazmmiwwa-wyazmmiwwa.gz
-E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\compressed\9mid0uqybs-{0}-2jmzprkqbs-2jmzprkqbs.gz
 E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\staticwebassets.build.json
 E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\staticwebassets.build.json.cache
 E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\staticwebassets.development.json
@@ -1125,3 +1115,13 @@ E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\SponsorshipWeb.dll
 E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\refint\SponsorshipWeb.dll
 E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\SponsorshipWeb.pdb
 E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\ref\SponsorshipWeb.dll
+E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\SponsorshipWeb.7qunsg3cmf.wasm
+E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\SponsorshipWeb.7wqnu49sz7.pdb
+E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\dotnet.6ouiqx80ed.js
+E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\SponsorshipWeb.7qunsg3cmf.wasm.gz
+E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\SponsorshipWeb.7wqnu49sz7.pdb.gz
+E:\GitHub\Sponsorship\SponsorshipWeb\bin\Debug\net10.0\wwwroot\_framework\dotnet.6ouiqx80ed.js.gz
+E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\compressed\qhh2knalmi-{0}-7qunsg3cmf-7qunsg3cmf.gz
+E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\compressed\jv7z3rw74u-{0}-7wqnu49sz7-7wqnu49sz7.gz
+E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\compressed\em95282yl1-{0}-6ouiqx80ed-6ouiqx80ed.gz
+E:\GitHub\Sponsorship\SponsorshipWeb\obj\Debug\net10.0\compressed\9mid0uqybs-{0}-l16zao07p8-l16zao07p8.gz

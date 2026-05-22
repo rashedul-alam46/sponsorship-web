@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Sponsorship.Application.DTOs;
+namespace Sponsorship.Models;
 
-public class SponsorshipRequestReadDto
+public class SponsorshipReadDto
 {
     public Guid SponsorshipId { get; set; }
     public string RequestTitle { get; set; }
@@ -25,7 +25,7 @@ public class SponsorshipRequestReadDto
     public string? Remarks { get; set; }
 }
 
-public class SponsorshipRequestCreateDto
+public class SponsorshipCreateDto
 {
 
 
@@ -64,7 +64,7 @@ public class SponsorshipRequestCreateDto
 
 }
 
-public class SponsorshipRequestUpdateDto
+public class SponsorshipUpdateDto
 {
     public Guid SponsorshipId { get; set; }
     [Required]

@@ -1,0 +1,83 @@
+@page "/sponsorships"
+
+@using System
+@using System.Linq
+@using global::Sponsorship.Models
+@using global::Sponsorship.Services
+@inject SponsorshipService SponsorshipService
+
+<h3>Sponsorships</h3>
+
+<div class="d-flex mb-3">
+    <input class="form-control me-2" placeholder="Search by title, requestor, organisation"
+           @bind="searchText" @bind:event="oninput" />
+    <button class="btn btn-secondary" @onclick="Refresh">Refresh</button>
+</div>
+
+@if (sponsorships == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!filteredSponsorships.Any())
+{
+    <p>No sponsorships found.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sponsorship ID</th>
+                <th>Title</th>
+                <th>Requestor</th>
+                <th>Organisation</th>
+                <th>Type</th>
+                <th>Requested Amount</th>
+                <th>Purpose</th>
+                <th>Expected Business Benefit</th>
+                <th>Remarks</th>
+                <th>Event Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sponsorship in filteredSponsorships)
+            {
+                <tr>
+                    <td>@sponsorship.SponsorshipId</td>
+                    <td>@sponsorship.RequestTitle</td>
+                    <td>@sponsorship.RequestorName</td>
+                    <td>@sponsorship.EventOrganisationName</td>
+                    <td>@sponsorship.SponsorshipType</td>
+                    <td>@sponsorship.RequestedAmount</td>
+                    <td>@sponsorship.Purpose</td>
+                    <td>@sponsorship.ExpectedBusinessBenefit</td>
+                    <td>@sponsorship.Remarks</td>
+                    <td>@sponsorship.EventDate.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<SponsorshipReadDto>? sponsorships;
+    private string searchText = string.Empty;
+
+    private IEnumerable<SponsorshipReadDto> filteredSponsorships =>
+        string.IsNullOrWhiteSpace(searchText)
+            ? sponsorships ?? Enumerable.Empty<SponsorshipReadDto>()
+            : (sponsorships ?? Enumerable.Empty<SponsorshipReadDto>())
+                .Where(s => s.RequestTitle.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+                         || s.RequestorName.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+                         || s.EventOrganisationName.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        sponsorships = await SponsorshipService.GetSponsorshipRequestsAsync();
+    }
+
+    private async Task Refresh()
+    {
+        sponsorships = await SponsorshipService.GetSponsorshipRequestsAsync();
+    }
+}

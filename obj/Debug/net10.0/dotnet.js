@@ -5,7 +5,7 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
   "mainAssemblyName": "SponsorshipWeb",
   "applicationEnvironment": "Development",
   "resources": {
-    "hash": "sha256-nP6KaQvYsuvn6XNk68VrRZ1KBS7LOXROXnzmzneZ6xw=",
+    "hash": "sha256-CbNZzT9wYiUbrkDVrTlmVaz3ZlcmrDt15VJMNIT7E5o=",
     "jsModuleNative": [
       {
         "name": "dotnet.native.rjbmzc4jpg.js"
@@ -1242,16 +1242,16 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
       },
       {
         "virtualPath": "SponsorshipWeb.wasm",
-        "name": "SponsorshipWeb.7qunsg3cmf.wasm",
-        "hash": "sha256-TwdDfRT3MQ5Hkiy9DsWBqvubvtpsskQ1OfCyMHB7wck=",
+        "name": "SponsorshipWeb.ui9vjp53lq.wasm",
+        "hash": "sha256-Crdl4KQJd+edldlI3C3h0ziqwXaS2gboEx8mayRbcYo=",
         "cache": "force-cache"
       }
     ],
     "pdb": [
       {
         "virtualPath": "SponsorshipWeb.pdb",
-        "name": "SponsorshipWeb.7wqnu49sz7.pdb",
-        "hash": "sha256-GRpOnJDb8ei1V7g7V/sd1cn8Bzr7+dbpMCLdK+wtxvk=",
+        "name": "SponsorshipWeb.1pcznxul5g.pdb",
+        "hash": "sha256-BeapjspIKVIDD9Kphrqa7YUgQAA5aWZb1tVzkCLczNQ=",
         "cache": "force-cache"
       }
     ],

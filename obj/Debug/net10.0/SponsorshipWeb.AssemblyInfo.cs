@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SponsorshipWeb")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d9bd1712199cb14930c433e04c7fa7d576375325")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+32bf177ae109f2b198481deea7b1f00c9ae4029f")]
 [assembly: System.Reflection.AssemblyProductAttribute("SponsorshipWeb")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SponsorshipWeb")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

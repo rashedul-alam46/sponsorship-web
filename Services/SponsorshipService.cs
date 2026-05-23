@@ -39,9 +39,9 @@ public class SponsorshipService
         return response.IsSuccessStatusCode;
     }
 
-    public async Task<bool> UpdateSponsorshipStatusAsync(Guid id)
+    public async Task<bool> UpdateSponsorshipStatusAsync(SponsorshipRequestStatusUpdateDto statusUpdate)
     {
-        var response = await _http.PutAsync($"{_baseUrl}/{id}/status", null);
+        var response = await _http.PutAsJsonAsync($"{_baseUrl}/{statusUpdate.SponsorshipId}/status", statusUpdate);
         return response.IsSuccessStatusCode;
     }
 

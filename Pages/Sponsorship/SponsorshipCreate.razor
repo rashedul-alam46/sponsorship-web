@@ -82,6 +82,7 @@ else
                     <div class="col-md-6">
                         <label class="form-label">Requestor Name</label>
                         <InputText class="form-control" @bind-Value="updateModel.RequestorName" />
+                        <ValidationMessage For="() => updateModel.RequestorName" />
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Department</label>
@@ -156,6 +157,7 @@ else
                     <div class="col-md-6">
                         <label class="form-label">Requestor Name</label>
                         <InputText class="form-control" @bind-Value="createModel.RequestorName" />
+                        <ValidationMessage For="() => createModel.RequestorName" />
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Department</label>

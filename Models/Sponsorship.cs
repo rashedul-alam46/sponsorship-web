@@ -104,3 +104,15 @@ public class SponsorshipUpdateDto
     public string? Remarks { get; set; }
     public Guid? UpdatedBy { get; set; }
 }
+
+public class SponsorshipRequestStatusUpdateDto
+{
+    [Required]
+    public Guid SponsorshipId { get; set; }
+
+    [Required]
+    public string? StatusCode { get; set; }
+
+    public Guid? UpdatedBy { get; set; }
+}
+

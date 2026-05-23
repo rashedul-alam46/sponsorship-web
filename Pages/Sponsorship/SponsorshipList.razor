@@ -68,9 +68,17 @@ else
                             <ul class="dropdown-menu">
                                 <li><button class="dropdown-item" @onclick="() => ViewSponsorship(sponsorship.SponsorshipId)">View</button></li>
                                 <li><button class="dropdown-item" @onclick="() => EditSponsorship(sponsorship.SponsorshipId)">Edit</button></li>
-                                <li><button class="dropdown-item" @onclick="() => ConfirmUpdateStatus(sponsorship.SponsorshipId)">Status Update</button></li>
+                                @* Show Status Update only for RoleId 2 or 3; hide for RoleId 4 *@
+                                @if (currentRoleId == 2 || currentRoleId == 3)
+                                {
+                                    <li><button class="dropdown-item" @onclick="() => ConfirmUpdateStatus(sponsorship.SponsorshipId, sponsorship.StatusCode)">Status Update</button></li>
+                                }
                                 <li><hr class="dropdown-divider" /></li>
-                                <li><button class="dropdown-item text-danger" @onclick="() => ConfirmDelete(sponsorship.SponsorshipId)">Cancel</button></li>
+                                @* Show Cancel only when status code is exactly "PMA" *@
+                                @if (sponsorship.StatusCode == "PMA")
+                                {
+                                    <li><button class="dropdown-item text-danger" @onclick="() => ConfirmDelete(sponsorship.SponsorshipId)">Cancel</button></li>
+                                }
                             </ul>
                         </div>
                     </td>
@@ -83,6 +91,7 @@ else
 @code {
     private List<SponsorshipReadDto>? sponsorships;
     private string searchText = string.Empty;
+    private int currentRoleId = 0;
 
     private IEnumerable<SponsorshipReadDto> filteredSponsorships =>
         string.IsNullOrWhiteSpace(searchText)
@@ -95,6 +104,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         await LoadSponsorshipsAsync();
+        // Capture current user's role for UI conditional logic
+        currentRoleId = SessionStorage.GetUser()?.RoleId ?? 0;
     }
 
     private async Task LoadSponsorshipsAsync()
@@ -126,12 +137,12 @@ else
         }
     }
 
-    private async Task ConfirmUpdateStatus(Guid id)
+    private async Task ConfirmUpdateStatus(Guid id, string statusCode)
     {
         var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Do you want to update the status for this request?");
         if (confirmed)
         {
-            await UpdateStatus(id);
+            await UpdateStatus(id, statusCode);
         }
     }
 
@@ -144,9 +155,23 @@ else
         }
     }
 
-    private async Task UpdateStatus(Guid id)
+    private async Task UpdateStatus(Guid id, string statusCode)
     {
-        var success = await SponsorshipService.UpdateSponsorshipStatusAsync(id);
+        var _nextStatusCode = statusCode switch
+        {
+            "PMA" => "PFR",
+            "PFR" => "APR",           
+            _ => statusCode
+        };
+
+        var statusUpdate = new SponsorshipRequestStatusUpdateDto
+        {
+            SponsorshipId = id,
+            StatusCode = _nextStatusCode,
+            UpdatedBy = SessionStorage.GetUser()?.UserId
+        };
+
+        var success = await SponsorshipService.UpdateSponsorshipStatusAsync(statusUpdate);
         if (success)
         {
             await LoadSponsorshipsAsync();

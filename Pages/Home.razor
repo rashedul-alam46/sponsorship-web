@@ -1,7 +1,58 @@
-﻿@page "/"
+﻿@page "/home"
+@inject NavigationManager Navigation
+@using Sponsorship
+
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="home-container">
+    <div class="home-header">
+        <h1>Welcome to Sponsorship System</h1>
+        <p>@GetWelcomeMessage()</p>
+    </div>
 
-Welcome to your new app.
+    <div class="home-content">
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Sponsorship Requests</h5>
+                        <p class="card-text">View and manage sponsorship requests</p>
+                        <a href="/sponsorship" class="btn btn-primary">View Requests</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Dashboard</h5>
+                        <p class="card-text">View your dashboard and analytics</p>
+                        <a href="#" class="btn btn-primary">Go to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Check if user is logged in
+        var user = SessionStorage.GetUser();
+        if (user == null)
+        {
+            Navigation.NavigateTo("/login", forceLoad: true);
+        }
+    }
+
+    private string GetWelcomeMessage()
+    {
+        var user = SessionStorage.GetUser();
+        if (user != null)
+        {
+            return $"Welcome, {user.FirstName} {user.LastName}!";
+        }
+        return "Welcome to the Sponsorship System";
+    }
+}

@@ -1,0 +1,556 @@
+@page "/sponsorship/new"
+@page "/sponsorship/edit/{Id:guid}"
+
+@using global::Sponsorship.Models
+@inject SponsorshipService SponsorshipService
+@inject DropdownService DropdownService
+@inject NavigationManager Navigation
+
+<PageTitle>@PageTitleText</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>@PageHeader</h3>
+    <button class="btn btn-secondary" @onclick="GoBack">Back to List</button>
+</div>
+
+@if (isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!string.IsNullOrEmpty(loadError))
+{
+    <div class="alert alert-danger">@loadError</div>
+}
+else
+{
+    @if (!string.IsNullOrEmpty(invalidSubmitMessage))
+    {
+        <div class="alert alert-warning">@invalidSubmitMessage</div>
+    }
+
+    @if (isEdit)
+    {
+        <form novalidate @onsubmit="HandleSubmit">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Request Title</label>
+                    <input class='@GetFieldCss("RequestTitle", "form-control")'
+                           @bind="updateModel.RequestTitle"
+                           @bind:event="oninput" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("RequestTitle")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("RequestTitle")</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Requestor Name</label>
+                    <input class='@GetFieldCss("RequestorName", "form-control")'
+                           @bind="updateModel.RequestorName"
+                           @bind:event="oninput" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("RequestorName")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("RequestorName")</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Department</label>
+                    <select class='@GetFieldCss("Department", "form-select")'
+                            @bind="updateModel.Department">
+                        <option value="">Select department</option>
+                        @foreach (var item in departments)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    @if (!string.IsNullOrEmpty(GetFieldError("Department")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("Department")</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Sponsorship Type</label>
+                    <select class='@GetFieldCss("SponsorshipType", "form-select")'
+                            @bind="updateModel.SponsorshipType">
+                        <option value="">Select sponsorship type</option>
+                        @foreach (var item in sponsorshipTypes)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    @if (!string.IsNullOrEmpty(GetFieldError("SponsorshipType")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("SponsorshipType")</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Event Organisation</label>
+                    <input class='@GetFieldCss("EventOrganisationName", "form-control")'
+                           @bind="updateModel.EventOrganisationName"
+                           @bind:event="oninput" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("EventOrganisationName")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("EventOrganisationName")</div>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Event Date</label>
+                    <input type="date"
+                           class='@GetFieldCss("EventDate", "form-control")'
+                           @bind="updateModel.EventDate" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("EventDate")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("EventDate")</div>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Requested Amount</label>
+                    <input type="number"
+                           class='@GetFieldCss("RequestedAmount", "form-control")'
+                           min="0"
+                           step="0.01"
+                           @bind="updateModel.RequestedAmount" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("RequestedAmount")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("RequestedAmount")</div>
+                    }
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Purpose</label>
+                    <textarea class='@GetFieldCss("Purpose", "form-control")'
+                              @bind="updateModel.Purpose"
+                              @bind:event="oninput"
+                              rows="3"></textarea>
+                    @if (!string.IsNullOrEmpty(GetFieldError("Purpose")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("Purpose")</div>
+                    }
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Expected Business Benefit</label>
+                    <textarea class="form-control"
+                              @bind="updateModel.ExpectedBusinessBenefit"
+                              @bind:event="oninput"
+                              rows="2"></textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Remarks</label>
+                    <textarea class="form-control"
+                              @bind="updateModel.Remarks"
+                              @bind:event="oninput"
+                              rows="2"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                @if (updateModel.StatusCode == "DRA"){
+                <button type="button" class="btn btn-outline-secondary me-2" @onclick="SaveAsDraft">Save As Draft</button>
+                <button type="submit" class="btn btn-primary me-2">Submit Request</button>
+}
+                else
+                {
+                <button type="submit" class="btn btn-primary me-2">Update Request</button>
+                }
+                <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <form novalidate @onsubmit="HandleSubmit">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Request Title</label>
+                    <input class='@GetFieldCss("RequestTitle", "form-control")'
+                           @bind="createModel.RequestTitle"
+                           @bind:event="oninput" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("RequestTitle")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("RequestTitle")</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Requestor Name</label>
+                    <input class='@GetFieldCss("RequestorName", "form-control")'
+                           @bind="createModel.RequestorName"
+                           @bind:event="oninput" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("RequestorName")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("RequestorName")</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Department</label>
+                    <select class='@GetFieldCss("Department", "form-select")'
+                            @bind="createModel.Department">
+                        <option value="">Select department</option>
+                        @foreach (var item in departments)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    @if (!string.IsNullOrEmpty(GetFieldError("Department")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("Department")</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Sponsorship Type</label>
+                    <select class='@GetFieldCss("SponsorshipType", "form-select")'
+                            @bind="createModel.SponsorshipType">
+                        <option value="">Select sponsorship type</option>
+                        @foreach (var item in sponsorshipTypes)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    @if (!string.IsNullOrEmpty(GetFieldError("SponsorshipType")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("SponsorshipType")</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Event Organisation</label>
+                    <input class='@GetFieldCss("EventOrganisationName", "form-control")'
+                           @bind="createModel.EventOrganisationName"
+                           @bind:event="oninput" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("EventOrganisationName")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("EventOrganisationName")</div>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Event Date</label>
+                    <input type="date"
+                           class='@GetFieldCss("EventDate", "form-control")'
+                           @bind="createModel.EventDate" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("EventDate")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("EventDate")</div>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Requested Amount</label>
+                    <input type="number"
+                           class='@GetFieldCss("RequestedAmount", "form-control")'
+                           min="0"
+                           step="0.01"
+                           @bind="createModel.RequestedAmount" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("RequestedAmount")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("RequestedAmount")</div>
+                    }
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Purpose</label>
+                    <textarea class='@GetFieldCss("Purpose", "form-control")'
+                              @bind="createModel.Purpose"
+                              @bind:event="oninput"
+                              rows="3"></textarea>
+                    @if (!string.IsNullOrEmpty(GetFieldError("Purpose")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("Purpose")</div>
+                    }
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Expected Business Benefit</label>
+                    <textarea class="form-control"
+                              @bind="createModel.ExpectedBusinessBenefit"
+                              @bind:event="oninput"
+                              rows="2"></textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Remarks</label>
+                    <textarea class="form-control"
+                              @bind="createModel.Remarks"
+                              @bind:event="oninput"
+                              rows="2"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="button" class="btn btn-outline-secondary me-2" @onclick="SaveAsDraft">Save As Draft</button>
+                <button type="submit" class="btn btn-primary me-2">Submit Request</button>
+                <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+            </div>
+        </form>
+    }
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private string PageTitleText => isEdit ? "Edit Sponsorship Request" : "Add New Sponsorship Request";
+    private string PageHeader => PageTitleText;
+
+    private bool isEdit;
+    private bool isLoading = true;
+    private string? loadError;
+
+    private SponsorshipCreateDto createModel = new()
+    {
+        RequestTitle = string.Empty,
+        RequestorName = string.Empty,
+        Department = string.Empty,
+        SponsorshipType = string.Empty,
+        EventOrganisationName = string.Empty,
+        EventDate = DateTime.Today,
+        RequestedAmount = 0m,
+        Purpose = string.Empty,
+        ExpectedBusinessBenefit = string.Empty,
+        Remarks = string.Empty
+    };
+
+    private SponsorshipUpdateDto updateModel = new()
+    {
+        RequestTitle = string.Empty,
+        RequestorName = string.Empty,
+        Department = string.Empty,
+        SponsorshipType = string.Empty,
+        EventOrganisationName = string.Empty,
+        EventDate = DateTime.Today,
+        RequestedAmount = 0m,
+        Purpose = string.Empty,
+        ExpectedBusinessBenefit = string.Empty,
+        Remarks = string.Empty,
+        StatusCode = string.Empty
+    };
+
+    private List<DropdownItem> departments = new();
+    private List<DropdownItem> sponsorshipTypes = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isEdit = false;
+        loadError = null;
+        isLoading = true;
+
+        var path = Navigation.ToAbsoluteUri(Navigation.Uri).AbsolutePath.ToLowerInvariant();
+        isEdit = path.Contains("/sponsorship/edit/");
+
+        await LoadDropdownsAsync();
+
+        if (isEdit && Id != Guid.Empty)
+        {
+            var sponsorship = await SponsorshipService.GetSponsorshipRequestAsync(Id);
+            if (sponsorship == null)
+            {
+                loadError = "Sponsorship request not found.";
+            }
+            else
+            {
+                // Only initialize updateModel if it hasn't been set yet (first load)
+                if (updateModel.SponsorshipId == Guid.Empty)
+                {
+                    updateModel = new SponsorshipUpdateDto
+                    {
+                        SponsorshipId = sponsorship.SponsorshipId,
+                        RequestTitle = sponsorship.RequestTitle,
+                        RequestorName = sponsorship.RequestorName,
+                        Department = sponsorship.DepartmentCode,
+                        SponsorshipType = sponsorship.SponsorshipType,
+                        EventOrganisationName = sponsorship.EventOrganisationName,
+                        EventDate = sponsorship.EventDate,
+                        RequestedAmount = sponsorship.RequestedAmount,
+                        Purpose = sponsorship.Purpose,
+                        ExpectedBusinessBenefit = sponsorship.ExpectedBusinessBenefit,
+                        Remarks = sponsorship.Remarks,
+                        StatusCode = sponsorship.StatusCode
+                    };
+                }
+            }
+        }
+
+        isLoading = false;
+    }
+
+    private async Task LoadDropdownsAsync()
+    {
+        departments = await DropdownService.GetCategoriesAsync();
+        sponsorshipTypes = await DropdownService.GetAuthorsAsync();
+    }
+
+    private async Task SaveSponsorship()
+    {
+        await SaveSponsorshipInternal(false);
+    }
+
+    private async Task SaveAsDraft()
+    {
+        await SaveSponsorshipInternal(true);
+    }
+
+    private async Task SaveSponsorshipInternal(bool saveAsDraft)
+    {
+        invalidSubmitMessage = string.Empty;
+        var currentUser = SessionStorage.GetUser();
+
+        if (isEdit)
+        {
+            if (currentUser?.UserId != null)
+            {
+                updateModel.UpdatedBy = currentUser.UserId;
+            }
+
+            var success = await SponsorshipService.UpdateSponsorshipRequestAsync(updateModel);
+            if (success)
+            {
+                Navigation.NavigateTo("/sponsorships");
+            }
+        }
+        else
+        {
+            if (currentUser?.UserId != null)
+            {
+                createModel.CreatedBy = currentUser.UserId;
+            }
+
+            createModel.SaveAsDraft = saveAsDraft ? "Y" : "N";
+
+            var success = await SponsorshipService.AddSponsorshipRequestAsync(createModel);
+            if (success)
+            {
+                Navigation.NavigateTo("/sponsorships");
+            }
+        }
+    }
+
+    private string invalidSubmitMessage = string.Empty;
+    private readonly Dictionary<string, string> createFieldErrors = new();
+    private readonly Dictionary<string, string> updateFieldErrors = new();
+
+    private async Task HandleSubmit()
+    {
+        invalidSubmitMessage = string.Empty;
+        ClearFieldErrors();
+
+        if (!ValidateForm())
+        {
+            invalidSubmitMessage = "Please complete the required fields before submitting.";
+            return;
+        }
+
+        await SaveSponsorshipInternal(false);
+    }
+
+    private void ClearFieldErrors()
+    {
+        createFieldErrors.Clear();
+        updateFieldErrors.Clear();
+    }
+
+    private bool ValidateForm()
+    {
+        var valid = true;
+
+        if (isEdit)
+        {
+            if (string.IsNullOrWhiteSpace(updateModel.RequestTitle))
+            {
+                updateFieldErrors[nameof(updateModel.RequestTitle)] = "Request Title is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(updateModel.RequestorName))
+            {
+                updateFieldErrors[nameof(updateModel.RequestorName)] = "Requestor Name is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(updateModel.Department))
+            {
+                updateFieldErrors[nameof(updateModel.Department)] = "Department is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(updateModel.SponsorshipType))
+            {
+                updateFieldErrors[nameof(updateModel.SponsorshipType)] = "Sponsorship Type is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(updateModel.EventOrganisationName))
+            {
+                updateFieldErrors[nameof(updateModel.EventOrganisationName)] = "Event Organisation is required.";
+                valid = false;
+            }
+
+            if (updateModel.RequestedAmount <= 0)
+            {
+                updateFieldErrors[nameof(updateModel.RequestedAmount)] = "Requested Amount must be greater than 0.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(updateModel.Purpose))
+            {
+                updateFieldErrors[nameof(updateModel.Purpose)] = "Purpose is required.";
+                valid = false;
+            }
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(createModel.RequestTitle))
+            {
+                createFieldErrors[nameof(createModel.RequestTitle)] = "Request Title is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(createModel.RequestorName))
+            {
+                createFieldErrors[nameof(createModel.RequestorName)] = "Requestor Name is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(createModel.Department))
+            {
+                createFieldErrors[nameof(createModel.Department)] = "Department is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(createModel.SponsorshipType))
+            {
+                createFieldErrors[nameof(createModel.SponsorshipType)] = "Sponsorship Type is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(createModel.EventOrganisationName))
+            {
+                createFieldErrors[nameof(createModel.EventOrganisationName)] = "Event Organisation is required.";
+                valid = false;
+            }
+
+            if (createModel.RequestedAmount <= 0)
+            {
+                createFieldErrors[nameof(createModel.RequestedAmount)] = "Requested Amount must be greater than 0.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(createModel.Purpose))
+            {
+                createFieldErrors[nameof(createModel.Purpose)] = "Purpose is required.";
+                valid = false;
+            }
+        }
+
+        return valid;
+    }
+
+    private string? GetFieldError(string fieldName)
+    {
+        return isEdit
+            ? updateFieldErrors.TryGetValue(fieldName, out var updateError) ? updateError : null
+            : createFieldErrors.TryGetValue(fieldName, out var createError) ? createError : null;
+    }
+
+    private string GetFieldCss(string fieldName, string baseClass)
+    {
+        return string.IsNullOrEmpty(GetFieldError(fieldName))
+            ? baseClass
+            : $"{baseClass} is-invalid";
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/sponsorships");
+    }
+}

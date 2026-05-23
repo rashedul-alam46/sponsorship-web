@@ -1,0 +1,160 @@
+@page "/login"
+@page "/"
+
+@inject AccountAuthService AuthService
+@inject NavigationManager Navigation
+
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Login</PageTitle>
+
+<div class="container vh-100 d-flex justify-content-center align-items-center">
+
+    <div class="card shadow p-4" style="width: 380px; border-radius: 12px;">
+
+        <h3 class="text-center mb-3">Sponsorship System</h3>
+        <p class="text-center text-muted">Please sign in</p>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @errorMessage
+                <button type="button" class="btn-close" @onclick="@(() => errorMessage = null)"></button>
+            </div>
+        }
+
+        <form @onsubmit="HandleLogin">
+            <!-- EMAIL -->
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="text" 
+                       class="form-control @(emailError != null ? "is-invalid" : "")" 
+                       @bind="model.Email"
+                       @bind:event="oninput"
+                       @onblur="ValidateEmail"
+                       placeholder="Enter your email" />
+                @if (!string.IsNullOrEmpty(emailError))
+                {
+                    <small class="text-danger d-block mt-1">@emailError</small>
+                }
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" 
+                       class="form-control @(passwordError != null ? "is-invalid" : "")" 
+                       @bind="model.Password"
+                       @bind:event="oninput"
+                       @onblur="ValidatePassword"
+                       placeholder="Enter your password" />
+                @if (!string.IsNullOrEmpty(passwordError))
+                {
+                    <small class="text-danger d-block mt-1">@passwordError</small>
+                }
+            </div>
+
+            <!-- REMEMBER -->
+            <div class="form-check mb-3">
+                <input type="checkbox" 
+                       class="form-check-input" 
+                       @bind="model.RememberMe" 
+                       id="rememberMe" />
+                <label class="form-check-label" for="rememberMe">Remember me</label>
+            </div>
+
+            <button class="btn btn-primary w-100" type="submit" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span>Signing in...</span>
+                }
+                else
+                {
+                    <span>Sign In</span>
+                }
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+@code {
+    private SignInDto model = new SignInDto();
+    private string? errorMessage;
+    private string? emailError;
+    private string? passwordError;
+    private bool isLoading = false;
+
+    private void ValidateEmail()
+    {
+        emailError = null;
+        if (string.IsNullOrWhiteSpace(model.Email))
+        {
+            emailError = "Email is required";
+        }
+        else if (!IsValidEmail(model.Email))
+        {
+            emailError = "Invalid Email Address";
+        }
+    }
+
+    private void ValidatePassword()
+    {
+        passwordError = null;
+        if (string.IsNullOrWhiteSpace(model.Password))
+        {
+            passwordError = "Password is required";
+        }
+        else if (model.Password.Length < 3)
+        {
+            passwordError = "Password must be at least 3 characters long";
+        }
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        // Clear previous errors
+        errorMessage = null;
+        emailError = null;
+        passwordError = null;
+
+        // Validate all fields
+        ValidateEmail();
+        ValidatePassword();
+
+        // If validation fails, don't proceed
+        if (!string.IsNullOrEmpty(emailError) || !string.IsNullOrEmpty(passwordError))
+        {
+            return;
+        }
+
+        isLoading = true;
+        var result = await AuthService.SignInAsync(model);
+        isLoading = false;
+
+        if (result.Success)
+        {
+            Navigation.NavigateTo("/home", forceLoad: false);
+        }
+        else
+        {
+            errorMessage = result.Message ?? "Login failed. Please try again.";
+        }
+    }
+}

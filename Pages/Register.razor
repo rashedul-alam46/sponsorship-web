@@ -1,0 +1,94 @@
+@page "/register"
+@inject NavigationManager Navigation
+
+<PageTitle>Register</PageTitle>
+
+<div class="register-container">
+    <div class="register-box">
+        <div class="register-header">
+            <h1>Create Account</h1>
+            <p>Register to get started</p>
+        </div>
+
+        <div class="alert alert-info">
+            Registration page is under development. Please contact your administrator for account creation.
+        </div>
+
+        <div class="register-footer">
+            <p>Already have an account? <a href="/login">Sign in here</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .register-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .register-box {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        padding: 40px;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .register-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .register-header h1 {
+        font-size: 28px;
+        color: #333;
+        margin: 0 0 10px 0;
+        font-weight: 700;
+    }
+
+    .register-header p {
+        color: #666;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+    }
+
+    .register-footer {
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+
+    .register-footer p {
+        color: #666;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .register-footer a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .register-footer a:hover {
+        text-decoration: underline;
+    }
+</style>

@@ -1,12 +1,32 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@using global::Sponsorship.Models
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        <div class="top-row px-4 d-flex justify-content-between align-items-center">
+            <div>
+                @{
+                    var user = GetCurrentUser();
+                    if (user != null)
+                    {
+                        <span>Welcome @user.FirstName @user.LastName</span>
+                    }
+                    else
+                    {
+                        <span>Please sign in</span>
+                    }
+                }
+            </div>
+            @if (GetCurrentUser() != null)
+            {
+                <button class="btn btn-outline-secondary btn-sm" @onclick="Logout">Logout</button>
+            }
         </div>
 
         <article class="content px-4">
@@ -14,3 +34,58 @@
         </article>
     </main>
 </div>
+
+@code {
+    private SignInResponseDto? currentUser;
+
+    protected override void OnInitialized()
+    {
+        currentUser = SessionStorage.GetUser();
+    }
+
+    protected override void OnParametersSet()
+    {
+        RedirectIfSessionExpired();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Log API response to console for debugging
+        var user = GetCurrentUser();
+        if (user != null)
+        {
+            await JSRuntime.InvokeVoidAsync("console.log", "[SponsorshipWeb] API Response - Current User:", 
+                new { userId = user.UserId, firstName = user.FirstName, lastName = user.LastName, roleId = user.RoleId });
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("console.log", "[SponsorshipWeb] No user logged in - showing 'Please sign in'");
+        }
+    }
+
+    private SignInResponseDto? GetCurrentUser()
+    {
+        return SessionStorage.GetUser();
+    }
+
+    private void RedirectIfSessionExpired()
+    {
+        var user = SessionStorage.GetUser();
+        if (user == null && !IsLoginOrRegisterPage())
+        {
+            Navigation.NavigateTo("/login", forceLoad: true);
+        }
+    }
+
+    private bool IsLoginOrRegisterPage()
+    {
+        var path = Navigation.ToAbsoluteUri(Navigation.Uri).AbsolutePath.TrimEnd('/').ToLowerInvariant();
+        return string.IsNullOrEmpty(path) || path == "/login" || path == "/register";
+    }
+
+    private void Logout()
+    {
+        SessionStorage.Clear();
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}

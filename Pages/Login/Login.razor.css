@@ -1,0 +1,153 @@
+::deep .login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+::deep .login-box {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+}
+
+::deep .login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+::deep .login-header h1 {
+  font-size: 28px;
+  color: #333;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+::deep .login-header p {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+::deep .form-group {
+  margin-bottom: 20px;
+}
+
+::deep .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+::deep .form-control {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+::deep .form-control:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+::deep .form-control::placeholder {
+  color: #999;
+}
+
+::deep .btn-login {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.3s;
+  margin-top: 10px;
+}
+
+::deep .btn-login:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+::deep .btn-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+::deep .btn-login .spinner-border {
+  width: 1rem;
+  height: 1rem;
+}
+
+::deep .validation-message {
+  color: #dc3545;
+  font-size: 13px;
+  margin-top: 4px;
+  display: block;
+}
+
+::deep .alert {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+::deep .alert-danger {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+::deep .login-footer {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+::deep .login-footer p {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+::deep .login-footer a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+::deep .login-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+  ::deep .login-container {
+    padding: 20px;
+  }
+
+  ::deep .login-box {
+    padding: 30px 20px;
+  }
+
+  ::deep .login-header h1 {
+    font-size: 24px;
+  }
+}

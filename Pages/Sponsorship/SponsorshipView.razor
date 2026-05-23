@@ -1,0 +1,193 @@
+@page "/sponsorship/view/{Id:guid}"
+
+@using global::Sponsorship.Models
+@using SponsorshipWeb.Shared
+@inject SponsorshipService SponsorshipService
+@inject NavigationManager Navigation
+
+<PageTitle>View Sponsorship Request</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>View Sponsorship Request</h3>
+    <button class="btn btn-secondary" @onclick="GoBack">Back to List</button>
+</div>
+
+@if (isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!string.IsNullOrEmpty(loadError))
+{
+    <div class="alert alert-danger">@loadError</div>
+}
+else
+{
+    
+    <dl class="row">
+        <dt class="col-sm-3">Title</dt>
+        <dd class="col-sm-9">@viewModel?.RequestTitle</dd>
+
+        <dt class="col-sm-3">Requestor</dt>
+        <dd class="col-sm-9">@viewModel?.RequestorName</dd>
+
+        <dt class="col-sm-3">Department</dt>
+        <dd class="col-sm-9">@viewModel?.DepartmentName</dd>
+
+        <dt class="col-sm-3">Type</dt>
+        <dd class="col-sm-9">@viewModel?.SponsorshipTypeName</dd>
+
+        <dt class="col-sm-3">Organisation</dt>
+        <dd class="col-sm-9">@viewModel?.EventOrganisationName</dd>
+
+        <dt class="col-sm-3">Event Date</dt>
+        <dd class="col-sm-9">@viewModel?.EventDate.ToString("yyyy-MM-dd")</dd>
+
+        <dt class="col-sm-3">Requested Amount</dt>
+        <dd class="col-sm-9">@viewModel?.RequestedAmount</dd>
+
+        <dt class="col-sm-3">Purpose</dt>
+        <dd class="col-sm-9">@viewModel?.Purpose</dd>
+
+        <dt class="col-sm-3">Expected Benefit</dt>
+        <dd class="col-sm-9">@viewModel?.ExpectedBusinessBenefit</dd>
+
+        <dt class="col-sm-3">Remarks</dt>
+        <dd class="col-sm-9">@viewModel?.Remarks</dd>
+
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">@viewModel?.StatusName</dd>
+    </dl>
+
+    <div class="mb-3">
+        @if ((currentRoleId == 2 || currentRoleId == 3) && (viewModel?.StatusCode == "PMA" || viewModel?.StatusCode == "PFR"))
+        {
+            <button class="btn btn-primary me-2" @onclick="OnStatusUpdateClicked">Status Update</button>
+        if(currentRoleId == 3)
+        {
+        <button class="btn btn-danger me-2" @onclick="OnRejectClicked">Reject</button>
+        }
+        }
+         <button class="btn btn-secondary" @onclick="ShowHistory">History</button>
+         <button class="btn btn-secondary" @onclick="GoBack">Back to List</button>
+    </div>
+
+}
+
+<ConfirmDialog @ref="confirmDialog" />
+<ResponseHistoryDialog @ref="historyDialog" />
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private SponsorshipReadDto? viewModel;
+    private bool isLoading = true;
+    private string? loadError;
+    private int currentRoleId = 0;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        loadError = null;
+        isLoading = true;
+
+        if (Id != Guid.Empty)
+        {
+            var sponsorship = await SponsorshipService.GetSponsorshipRequestAsync(Id);
+            if (sponsorship == null)
+            {
+                loadError = "Sponsorship request not found.";
+            }
+            else
+            {
+                viewModel = sponsorship;
+            }
+        }
+        else
+        {
+            loadError = "Invalid sponsorship ID.";
+        }
+
+        // capture current user's role for UI logic
+        currentRoleId = SessionStorage.GetUser()?.RoleId ?? 0;
+
+        isLoading = false;
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/sponsorships");
+    }
+
+    private ConfirmDialog? confirmDialog;
+    private ResponseHistoryDialog? historyDialog;
+
+    private async Task ShowHistory()
+    {
+        if (viewModel == null || historyDialog == null)
+        {
+            return;
+        }
+
+        await historyDialog.Show(viewModel.SponsorshipId);
+    }
+
+    private async Task OnStatusUpdateClicked()
+    {
+        if (viewModel == null) return;
+
+        var confirmed = await (confirmDialog?.Show("Do you want to update the status for this request?", "Confirm Status Update") ?? Task.FromResult(false));
+        if (!confirmed) return;
+
+        var statusCode = viewModel.StatusCode ?? string.Empty;
+        var nextStatusCode = statusCode switch
+        {
+            "PMA" => "PFR",
+            "PFR" => "APR",
+            _ => statusCode
+        };
+
+        var dto = new SponsorshipRequestStatusUpdateDto
+        {
+            SponsorshipId = viewModel.SponsorshipId,
+            StatusCode = nextStatusCode,
+            UpdatedBy = SessionStorage.GetUser()?.UserId
+        };
+
+        var success = await SponsorshipService.UpdateSponsorshipStatusAsync(dto);
+        if (success)
+        {
+            viewModel = await SponsorshipService.GetSponsorshipRequestAsync(Id);
+            StateHasChanged();
+        }
+        else
+        {
+            loadError = "Failed to update status.";
+        }
+    }
+
+    private async Task OnRejectClicked()
+    {
+        if (viewModel == null) return;
+
+        var confirmed = await (confirmDialog?.Show("Are you sure you want to reject this request?", "Confirm Reject") ?? Task.FromResult(false));
+        if (!confirmed) return;
+
+        var dto = new SponsorshipRequestStatusUpdateDto
+        {
+            SponsorshipId = viewModel.SponsorshipId,
+            StatusCode = "REJ",
+            UpdatedBy = SessionStorage.GetUser()?.UserId
+        };
+
+        var success = await SponsorshipService.UpdateSponsorshipStatusAsync(dto);
+        if (success)
+        {
+            viewModel = await SponsorshipService.GetSponsorshipRequestAsync(Id);
+            StateHasChanged();
+        }
+        else
+        {
+            loadError = "Failed to reject request.";
+        }
+    }
+}

@@ -1,0 +1,206 @@
+@page "/sponsorships"
+@page "/sponsorship"
+
+@using System
+@using System.Linq
+@using global::Sponsorship.Models
+@using global::Sponsorship.Services
+@inject SponsorshipService SponsorshipService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@using SponsorshipWeb.Shared
+
+<h3>Sponsorships</h3>
+
+<div class="d-flex mb-3 align-items-center">
+    <input class="form-control me-2" placeholder="Search by title, requestor, organisation"
+           @bind="searchText" @bind:event="oninput" />
+    <button class="btn btn-secondary me-2" @onclick="Refresh">Refresh</button>
+    <a class="btn btn-primary" href="/sponsorship/new">Add New Request</a>
+</div>
+
+@if (sponsorships == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!filteredSponsorships.Any())
+{
+    <p>No sponsorships found.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Requestor</th>
+                <th>Department</th>
+                <th>Type</th>
+                <th>Organisation</th>
+                <th>Event Date</th>
+                <th>Req. Amount</th>
+                <th>Purpose</th>
+                <th>Business Benefit</th>
+                <th>Remarks</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sponsorship in filteredSponsorships)
+            {
+                <tr>
+                    <td>@sponsorship.RequestTitle</td>
+                    <td>@sponsorship.RequestorName</td>
+                    <td>@sponsorship.DepartmentName</td>
+                    <td>@sponsorship.SponsorshipTypeName</td>
+                    <td>@sponsorship.EventOrganisationName</td>
+                    <td>@sponsorship.EventDate.ToString("yyyy-MM-dd")</td>
+                    <td>@sponsorship.RequestedAmount</td>
+                    <td>@sponsorship.Purpose</td>
+                    <td>@sponsorship.ExpectedBusinessBenefit</td>
+                    <td>@sponsorship.Remarks</td>
+                    <td>@sponsorship.StatusName</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                &#x2022;&#x2022;&#x2022;
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><button class="dropdown-item" @onclick="() => ViewSponsorship(sponsorship.SponsorshipId)">View</button></li>
+                                 
+                                 @if ((currentRoleId == 4) && (sponsorship.StatusCode == "PMA" || sponsorship.StatusCode == "DRA"))
+                                  {
+                                    
+                                    
+                                    <li><button class="dropdown-item" @onclick="() => EditSponsorship(sponsorship.SponsorshipId)">Edit</button></li>
+                                    
+                                }
+                               
+                                @* Show Status Update only for RoleId 2 or 3; hide for RoleId 4 *@
+                                @if ((currentRoleId == 2 || currentRoleId == 3) &&  (sponsorship.StatusCode == "PMA" || sponsorship.StatusCode == "PFR"))
+                                {
+                                    <li><button class="dropdown-item" @onclick="() => ConfirmUpdateStatus(sponsorship.SponsorshipId, sponsorship.StatusCode)">Status Update</button></li>
+                                }
+                                <li><button class="dropdown-item" @onclick="() => ShowHistory(sponsorship.SponsorshipId)">View History</button></li>
+                                @* Show Cancel only when status code is exactly "PMA" *@
+                                @if (sponsorship.StatusCode == "PMA" && currentRoleId == 4)
+                                {
+                                     <li><hr class="dropdown-divider" /></li>
+                                    <li><button class="dropdown-item text-danger" @onclick="() => ConfirmCancel(sponsorship.SponsorshipId)">Cancel</button></li>
+                                }
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<SponsorshipHistoryg @ref="historyDialog" />
+
+@code {
+    private List<SponsorshipReadDto>? sponsorships;
+    private string searchText = string.Empty;
+    private int currentRoleId = 0;
+    private SponsorshipHistoryg? historyDialog;
+
+    private IEnumerable<SponsorshipReadDto> filteredSponsorships =>
+        string.IsNullOrWhiteSpace(searchText)
+            ? sponsorships ?? Enumerable.Empty<SponsorshipReadDto>()
+            : (sponsorships ?? Enumerable.Empty<SponsorshipReadDto>())
+                .Where(s => s.RequestTitle.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+                         || s.RequestorName.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+                         || s.EventOrganisationName.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        var currentUser = SessionStorage.GetUser();
+        await LoadSponsorshipsAsync(currentUser?.UserId ?? Guid.Empty, currentUser?.RoleId ?? 0);
+        // Capture current user's role for UI conditional logic
+        currentRoleId = currentUser?.RoleId ?? 0;
+    }
+
+    private async Task LoadSponsorshipsAsync(Guid userId, int roleId)
+    {
+        sponsorships = await SponsorshipService.GetSponsorshipRequestsAsync(userId, roleId);
+    }
+
+    private async Task Refresh()
+    {
+        var currentUser = SessionStorage.GetUser();
+        await LoadSponsorshipsAsync(currentUser?.UserId ?? Guid.Empty, currentUser?.RoleId ?? 0);
+    }
+
+    private void ViewSponsorship(Guid id)
+    {
+        Navigation.NavigateTo($"/sponsorship/view/{id}");
+    }
+
+    private void EditSponsorship(Guid id)
+    {
+        Navigation.NavigateTo($"/sponsorship/edit/{id}");
+    }
+
+    private async Task ConfirmCancel(Guid id)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to cancel this request?");
+        if (confirmed)
+        {
+            await UpdateStatus(id, "CAN");
+        }
+    }
+
+    private async Task ShowHistory(Guid id)
+    {
+        if (historyDialog != null)
+        {
+            await historyDialog.Show(id);
+        }
+    }
+
+    private async Task ConfirmUpdateStatus(Guid id, string statusCode)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Do you want to update the status for this request?");
+        if (confirmed)
+        {
+            await UpdateStatus(id, statusCode);
+        }
+    }
+
+    private async Task CancelSponsorship(Guid id)
+    {
+        var success = await SponsorshipService.CancelSponsorshipRequestAsync(id);
+        if (success)
+        {
+            var currentUser = SessionStorage.GetUser();
+            await LoadSponsorshipsAsync(currentUser?.UserId ?? Guid.Empty, currentUser?.RoleId ?? 0);
+        }
+    }
+
+    private async Task UpdateStatus(Guid id, string statusCode)
+    {
+        var _nextStatusCode = statusCode switch
+        {
+            "PMA" => "PFR",
+            "PFR" => "APR",     
+            "CAN" => "CAN",          
+            _ => statusCode
+        };
+
+        var statusUpdate = new SponsorshipRequestStatusUpdateDto
+        {
+            SponsorshipId = id,
+            StatusCode = _nextStatusCode,
+            UpdatedBy = SessionStorage.GetUser()?.UserId
+        };
+
+        var success = await SponsorshipService.UpdateSponsorshipStatusAsync(statusUpdate);
+        if (success)
+        {
+            var currentUser = SessionStorage.GetUser();
+            await LoadSponsorshipsAsync(currentUser?.UserId ?? Guid.Empty, currentUser?.RoleId ?? 0);
+        }
+    }
+}

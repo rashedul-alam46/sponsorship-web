@@ -2,6 +2,7 @@
 @page "/"
 @inject global::Sponsorship.Services.AccountAuthService AuthService
 @inject global::Microsoft.AspNetCore.Components.NavigationManager Navigation
+@inject IJSRuntime JSRuntime
 @using global::Sponsorship.Models
 @using System.ComponentModel.DataAnnotations
 
@@ -14,7 +15,7 @@
             <p>Please sign in to continue</p>
         </div>
 
-        <EditForm Model="@signInModel" OnValidSubmit="@HandleLogin">
+        <EditForm Model="@signInModel" OnValidSubmit="@HandleLogin" OnInvalidSubmit="@HandleInvalidSubmit">
             <DataAnnotationsValidator />
             <div class="form-group">
                 <label for="email">Email Address</label>
@@ -26,6 +27,11 @@
                 <label for="password">Password</label>
                 <InputText id="password" type="password" class="form-control" @bind-Value="signInModel.Password" placeholder="Enter your password" />
                 <ValidationMessage For="@(() => signInModel.Password)" />
+            </div>
+
+            <div class="form-check">
+                <InputCheckbox id="rememberMe" class="form-check-input" @bind-Value="signInModel.RememberMe" />
+                <label class="form-check-label" for="rememberMe">Remember me</label>
             </div>
 
             @if (!string.IsNullOrEmpty(errorMessage))
@@ -59,6 +65,33 @@
     private string errorMessage = string.Empty;
     private bool isLoading = false;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Load saved email if remember me was previously checked
+            try
+            {
+                var savedEmail = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "sponsorshipRememberEmail");
+                if (!string.IsNullOrEmpty(savedEmail))
+                {
+                    signInModel.Email = savedEmail;
+                    signInModel.RememberMe = true;
+                    StateHasChanged();
+                }
+            }
+            catch
+            {
+                // localStorage not available or error occurred
+            }
+        }
+    }
+
+    private void HandleInvalidSubmit(EditContext editContext)
+    {
+        // Validation messages will display automatically from ValidationMessage components
+    }
+
     private async Task HandleLogin()
     {
         isLoading = true;
@@ -68,6 +101,23 @@
 
         if (result.Success && result.Data != null)
         {
+            // Handle remember me
+            try
+            {
+                if (signInModel.RememberMe)
+                {
+                    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "sponsorshipRememberEmail", signInModel.Email);
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "sponsorshipRememberEmail");
+                }
+            }
+            catch
+            {
+                // localStorage not available or error occurred
+            }
+
             // Store user data and tokens
             AuthService.StoreTokens(result.Data);
             
@@ -81,6 +131,16 @@
         else
         {
             errorMessage = result.Message ?? "An error occurred during login.";
+            
+            // Clear remember me on failed login
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "sponsorshipRememberEmail");
+            }
+            catch
+            {
+                // localStorage not available
+            }
         }
 
         isLoading = false;

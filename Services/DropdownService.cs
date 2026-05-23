@@ -15,10 +15,16 @@ public class DropdownService
     }
 
     public async Task<List<DropdownItem>> GetCategoriesAsync()
-        => await _http.GetFromJsonAsync<List<DropdownItem>>($"{_baseUrl}/departments") ?? new List<DropdownItem>();
+    {
+        var response = await _http.GetFromJsonAsync<ApiResponse<List<DropdownItem>>>($"{_baseUrl}/departments");
+        return response?.Data ?? new List<DropdownItem>();
+    }
 
     public async Task<List<DropdownItem>> GetAuthorsAsync()
-        => await _http.GetFromJsonAsync<List<DropdownItem>>($"{_baseUrl}/sponsorshiptypes") ?? new List<DropdownItem>();
+    {
+        var response = await _http.GetFromJsonAsync<ApiResponse<List<DropdownItem>>>($"{_baseUrl}/sponsorshiptypes");
+        return response?.Data ?? new List<DropdownItem>();
+    }
 
 
 }

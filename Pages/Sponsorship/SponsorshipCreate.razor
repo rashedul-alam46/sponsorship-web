@@ -1,0 +1,458 @@
+@page "/sponsorship/new"
+@page "/sponsorship/edit/{Id:guid}"
+@page "/sponsorship/view/{Id:guid}"
+
+@using global::Sponsorship.Models
+@inject SponsorshipService SponsorshipService
+@inject DropdownService DropdownService
+@inject NavigationManager Navigation
+
+<PageTitle>@PageTitleText</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>@PageHeader</h3>
+    <button class="btn btn-secondary" @onclick="GoBack">Back to List</button>
+</div>
+
+@if (isLoading)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!string.IsNullOrEmpty(loadError))
+{
+    <div class="alert alert-danger">@loadError</div>
+}
+else if (!string.IsNullOrEmpty(invalidSubmitMessage))
+{
+    <div class="alert alert-warning">@invalidSubmitMessage</div>
+}
+else
+{
+    @if (isView)
+    {
+        <dl class="row">
+            <dt class="col-sm-3">Title</dt>
+            <dd class="col-sm-9">@viewModel?.RequestTitle</dd>
+
+            <dt class="col-sm-3">Requestor</dt>
+            <dd class="col-sm-9">@viewModel?.RequestorName</dd>
+
+            <dt class="col-sm-3">Department</dt>
+            <dd class="col-sm-9">@viewModel?.DepartmentName</dd>
+
+            <dt class="col-sm-3">Type</dt>
+            <dd class="col-sm-9">@viewModel?.SponsorshipTypeName</dd>
+
+            <dt class="col-sm-3">Organisation</dt>
+            <dd class="col-sm-9">@viewModel?.EventOrganisationName</dd>
+
+            <dt class="col-sm-3">Event Date</dt>
+            <dd class="col-sm-9">@viewModel?.EventDate.ToString("yyyy-MM-dd")</dd>
+
+            <dt class="col-sm-3">Requested Amount</dt>
+            <dd class="col-sm-9">@viewModel?.RequestedAmount</dd>
+
+            <dt class="col-sm-3">Purpose</dt>
+            <dd class="col-sm-9">@viewModel?.Purpose</dd>
+
+            <dt class="col-sm-3">Expected Benefit</dt>
+            <dd class="col-sm-9">@viewModel?.ExpectedBusinessBenefit</dd>
+
+            <dt class="col-sm-3">Remarks</dt>
+            <dd class="col-sm-9">@viewModel?.Remarks</dd>
+
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">@viewModel?.StatusName</dd>
+        </dl>
+    }
+    else
+    {
+        @if (isEdit)
+        {
+            <EditForm Model="updateModel" OnValidSubmit="SaveSponsorship" OnInvalidSubmit="HandleInvalidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Request Title</label>
+                        <InputText class="form-control" @bind-Value="updateModel.RequestTitle" />
+                        <ValidationMessage For="() => updateModel.RequestTitle" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Requestor Name</label>
+                        <InputText class="form-control" @bind-Value="updateModel.RequestorName" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Department</label>
+                        <InputSelect class="form-select" @bind-Value="updateModel.Department">
+                            <option value="">Select department</option>
+                            @foreach (var item in departments)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="() => updateModel.Department" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Sponsorship Type</label>
+                        <InputSelect class="form-select" @bind-Value="updateModel.SponsorshipType">
+                            <option value="">Select sponsorship type</option>
+                            @foreach (var item in sponsorshipTypes)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="() => updateModel.SponsorshipType" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Event Organisation</label>
+                        <InputText class="form-control" @bind-Value="updateModel.EventOrganisationName" />
+                        <ValidationMessage For="() => updateModel.EventOrganisationName" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Event Date</label>
+                        <InputDate class="form-control" @bind-Value="updateModel.EventDate" />
+                        <ValidationMessage For="() => updateModel.EventDate" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Requested Amount</label>
+                        <InputNumber class="form-control" @bind-Value="updateModel.RequestedAmount" />
+                        <ValidationMessage For="() => updateModel.RequestedAmount" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Purpose</label>
+                        <InputTextArea class="form-control" @bind-Value="updateModel.Purpose" Rows="3" />
+                        <ValidationMessage For="() => updateModel.Purpose" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Expected Business Benefit</label>
+                        <InputTextArea class="form-control" @bind-Value="updateModel.ExpectedBusinessBenefit" Rows="2" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Remarks</label>
+                        <InputTextArea class="form-control" @bind-Value="updateModel.Remarks" Rows="2" />
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary me-2">Update Request</button>
+                    <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+                </div>
+            </EditForm>
+        }
+        else
+        {
+            <EditForm Model="createModel" OnValidSubmit="SaveSponsorship" OnInvalidSubmit="HandleInvalidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Request Title</label>
+                        <InputText class="form-control" @bind-Value="createModel.RequestTitle" />
+                        <ValidationMessage For="() => createModel.RequestTitle" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Requestor Name</label>
+                        <InputText class="form-control" @bind-Value="createModel.RequestorName" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Department</label>
+                        <InputSelect class="form-select" @bind-Value="createModel.Department">
+                            <option value="">Select department</option>
+                            @foreach (var item in departments)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="() => createModel.Department" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Sponsorship Type</label>
+                        <InputSelect class="form-select" @bind-Value="createModel.SponsorshipType">
+                            <option value="">Select sponsorship type</option>
+                            @foreach (var item in sponsorshipTypes)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="() => createModel.SponsorshipType" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Event Organisation</label>
+                        <InputText class="form-control" @bind-Value="createModel.EventOrganisationName" />
+                        <ValidationMessage For="() => createModel.EventOrganisationName" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Event Date</label>
+                        <InputDate class="form-control" @bind-Value="createModel.EventDate" />
+                        <ValidationMessage For="() => createModel.EventDate" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Requested Amount</label>
+                        <InputNumber class="form-control" @bind-Value="createModel.RequestedAmount" />
+                        <ValidationMessage For="() => createModel.RequestedAmount" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Purpose</label>
+                        <InputTextArea class="form-control" @bind-Value="createModel.Purpose" Rows="3" />
+                        <ValidationMessage For="() => createModel.Purpose" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Expected Business Benefit</label>
+                        <InputTextArea class="form-control" @bind-Value="createModel.ExpectedBusinessBenefit" Rows="2" />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Remarks</label>
+                        <InputTextArea class="form-control" @bind-Value="createModel.Remarks" Rows="2" />
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary me-2">Submit Request</button>
+                    <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+                </div>
+            </EditForm>
+        }
+    }
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private string PageTitleText => isView ? "View Sponsorship Request" : isEdit ? "Edit Sponsorship Request" : "Add New Sponsorship Request";
+    private string PageHeader => PageTitleText;
+
+    private bool isEdit;
+    private bool isView;
+    private bool isLoading = true;
+    private string? loadError;
+
+    private SponsorshipCreateDto createModel = new()
+    {
+        RequestTitle = string.Empty,
+        RequestorName = string.Empty,
+        Department = string.Empty,
+        SponsorshipType = string.Empty,
+        EventOrganisationName = string.Empty,
+        EventDate = DateTime.Today,
+        RequestedAmount = 0m,
+        Purpose = string.Empty,
+        ExpectedBusinessBenefit = string.Empty,
+        Remarks = string.Empty
+    };
+
+    private SponsorshipUpdateDto updateModel = new()
+    {
+        RequestTitle = string.Empty,
+        RequestorName = string.Empty,
+        Department = string.Empty,
+        SponsorshipType = string.Empty,
+        EventOrganisationName = string.Empty,
+        EventDate = DateTime.Today,
+        RequestedAmount = 0m,
+        Purpose = string.Empty,
+        ExpectedBusinessBenefit = string.Empty,
+        Remarks = string.Empty
+    };
+
+    private SponsorshipReadDto? viewModel;
+    private List<DropdownItem> departments = new();
+    private List<DropdownItem> sponsorshipTypes = new();
+
+    private string CurrentTitle
+    {
+        get => isEdit ? updateModel.RequestTitle : createModel.RequestTitle;
+        set
+        {
+            if (isEdit) updateModel.RequestTitle = value;
+            else createModel.RequestTitle = value;
+        }
+    }
+
+    private string CurrentRequestorName
+    {
+        get => isEdit ? updateModel.RequestorName : createModel.RequestorName;
+        set
+        {
+            if (isEdit) updateModel.RequestorName = value;
+            else createModel.RequestorName = value;
+        }
+    }
+
+    private string CurrentDepartment
+    {
+        get => isEdit ? updateModel.Department : createModel.Department;
+        set
+        {
+            if (isEdit) updateModel.Department = value;
+            else createModel.Department = value;
+        }
+    }
+
+    private string CurrentSponsorshipType
+    {
+        get => isEdit ? updateModel.SponsorshipType : createModel.SponsorshipType;
+        set
+        {
+            if (isEdit) updateModel.SponsorshipType = value;
+            else createModel.SponsorshipType = value;
+        }
+    }
+
+    private string CurrentEventOrganisationName
+    {
+        get => isEdit ? updateModel.EventOrganisationName : createModel.EventOrganisationName;
+        set
+        {
+            if (isEdit) updateModel.EventOrganisationName = value;
+            else createModel.EventOrganisationName = value;
+        }
+    }
+
+    private DateTime CurrentEventDate
+    {
+        get => isEdit ? updateModel.EventDate : createModel.EventDate;
+        set
+        {
+            if (isEdit) updateModel.EventDate = value;
+            else createModel.EventDate = value;
+        }
+    }
+
+    private decimal CurrentRequestedAmount
+    {
+        get => isEdit ? updateModel.RequestedAmount : createModel.RequestedAmount;
+        set
+        {
+            if (isEdit) updateModel.RequestedAmount = value;
+            else createModel.RequestedAmount = value;
+        }
+    }
+
+    private string CurrentPurpose
+    {
+        get => isEdit ? updateModel.Purpose : createModel.Purpose;
+        set
+        {
+            if (isEdit) updateModel.Purpose = value;
+            else createModel.Purpose = value;
+        }
+    }
+
+    private string? CurrentExpectedBusinessBenefit
+    {
+        get => isEdit ? updateModel.ExpectedBusinessBenefit : createModel.ExpectedBusinessBenefit;
+        set
+        {
+            if (isEdit) updateModel.ExpectedBusinessBenefit = value;
+            else createModel.ExpectedBusinessBenefit = value;
+        }
+    }
+
+    private string? CurrentRemarks
+    {
+        get => isEdit ? updateModel.Remarks : createModel.Remarks;
+        set
+        {
+            if (isEdit) updateModel.Remarks = value;
+            else createModel.Remarks = value;
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isView = false;
+        isEdit = false;
+        loadError = null;
+        isLoading = true;
+
+        var path = Navigation.ToAbsoluteUri(Navigation.Uri).AbsolutePath.ToLowerInvariant();
+        isEdit = path.Contains("/sponsorship/edit/");
+        isView = path.Contains("/sponsorship/view/");
+
+        await LoadDropdownsAsync();
+
+        if (Id != Guid.Empty)
+        {
+            var sponsorship = await SponsorshipService.GetSponsorshipRequestAsync(Id);
+            if (sponsorship == null)
+            {
+                loadError = "Sponsorship request not found.";
+            }
+            else
+            {
+                viewModel = sponsorship;
+                updateModel = new SponsorshipUpdateDto
+                {
+                    SponsorshipId = sponsorship.SponsorshipId,
+                    RequestTitle = sponsorship.RequestTitle,
+                    RequestorName = sponsorship.RequestorName,
+                    Department = sponsorship.DepartmentCode,
+                    SponsorshipType = sponsorship.SponsorshipType,
+                    EventOrganisationName = sponsorship.EventOrganisationName,
+                    EventDate = sponsorship.EventDate,
+                    RequestedAmount = sponsorship.RequestedAmount,
+                    Purpose = sponsorship.Purpose,
+                    ExpectedBusinessBenefit = sponsorship.ExpectedBusinessBenefit,
+                    Remarks = sponsorship.Remarks
+                };
+            }
+        }
+
+        isLoading = false;
+    }
+
+    private async Task LoadDropdownsAsync()
+    {
+        departments = await DropdownService.GetCategoriesAsync();
+        sponsorshipTypes = await DropdownService.GetAuthorsAsync();
+    }
+
+    private async Task SaveSponsorship()
+    {
+        invalidSubmitMessage = string.Empty;
+        var currentUser = SessionStorage.GetUser();
+
+        if (isEdit)
+        {
+            if (currentUser?.UserId != null)
+            {
+                updateModel.UpdatedBy = currentUser.UserId;
+            }
+
+            var success = await SponsorshipService.UpdateSponsorshipRequestAsync(updateModel);
+            if (success)
+            {
+                Navigation.NavigateTo("/sponsorships");
+            }
+        }
+        else
+        {
+            if (currentUser?.UserId != null)
+            {
+                createModel.CreatedBy = currentUser.UserId;
+            }
+
+            var success = await SponsorshipService.AddSponsorshipRequestAsync(createModel);
+            if (success)
+            {
+                Navigation.NavigateTo("/sponsorships");
+            }
+        }
+    }
+
+    private string invalidSubmitMessage = string.Empty;
+
+    private void HandleInvalidSubmit(EditContext editContext)
+    {
+        invalidSubmitMessage = "Please complete the required fields before submitting.";
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/sponsorships");
+    }
+}

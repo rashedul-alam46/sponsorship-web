@@ -32,7 +32,7 @@ public class SponsorshipCreateDto
 
 
     [Required]
-    [MaxLength(250)]
+    [MaxLength(150)]
     public string RequestTitle { get; set; } = null!;
 
     [Required]
@@ -62,6 +62,8 @@ public class SponsorshipCreateDto
 
     public string? ExpectedBusinessBenefit { get; set; }
     public string? Remarks { get; set; }
+
+    public Guid? CreatedBy { get; set; }
 
 
 }
@@ -70,7 +72,7 @@ public class SponsorshipUpdateDto
 {
     public Guid SponsorshipId { get; set; }
     [Required]
-    [MaxLength(250)]
+    [MaxLength(150)]
     public string RequestTitle { get; set; } = null!;
 
     [Required]
@@ -100,4 +102,5 @@ public class SponsorshipUpdateDto
 
     public string? ExpectedBusinessBenefit { get; set; }
     public string? Remarks { get; set; }
+    public Guid? UpdatedBy { get; set; }
 }

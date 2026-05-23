@@ -6,13 +6,16 @@
 @using global::Sponsorship.Models
 @using global::Sponsorship.Services
 @inject SponsorshipService SponsorshipService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
 
 <h3>Sponsorships</h3>
 
-<div class="d-flex mb-3">
+<div class="d-flex mb-3 align-items-center">
     <input class="form-control me-2" placeholder="Search by title, requestor, organisation"
            @bind="searchText" @bind:event="oninput" />
-    <button class="btn btn-secondary" @onclick="Refresh">Refresh</button>
+    <button class="btn btn-secondary me-2" @onclick="Refresh">Refresh</button>
+    <a class="btn btn-primary" href="/sponsorship/new">Add New Request</a>
 </div>
 
 @if (sponsorships == null)
@@ -27,24 +30,25 @@ else
 {
     <table class="table table-striped">
         <thead>
-            <tr>                
+            <tr>
                 <th>Title</th>
                 <th>Requestor</th>
                 <th>Department</th>
-                 <th>Type</th>
+                <th>Type</th>
                 <th>Organisation</th>
-               <th>Event Date</th>
+                <th>Event Date</th>
                 <th>Req. Amount</th>
                 <th>Purpose</th>
                 <th>Business Benefit</th>
-                <th>Remarks</th>                
+                <th>Remarks</th>
                 <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var sponsorship in filteredSponsorships)
             {
-                <tr>                    
+                <tr>
                     <td>@sponsorship.RequestTitle</td>
                     <td>@sponsorship.RequestorName</td>
                     <td>@sponsorship.DepartmentName</td>
@@ -54,8 +58,22 @@ else
                     <td>@sponsorship.RequestedAmount</td>
                     <td>@sponsorship.Purpose</td>
                     <td>@sponsorship.ExpectedBusinessBenefit</td>
-                    <td>@sponsorship.Remarks</td>                    
+                    <td>@sponsorship.Remarks</td>
                     <td>@sponsorship.StatusName</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                &#x2022;&#x2022;&#x2022;
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><button class="dropdown-item" @onclick="() => ViewSponsorship(sponsorship.SponsorshipId)">View</button></li>
+                                <li><button class="dropdown-item" @onclick="() => EditSponsorship(sponsorship.SponsorshipId)">Edit</button></li>
+                                <li><button class="dropdown-item" @onclick="() => ConfirmUpdateStatus(sponsorship.SponsorshipId)">Status Update</button></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><button class="dropdown-item text-danger" @onclick="() => ConfirmDelete(sponsorship.SponsorshipId)">Cancel</button></li>
+                            </ul>
+                        </div>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -76,11 +94,62 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadSponsorshipsAsync();
+    }
+
+    private async Task LoadSponsorshipsAsync()
+    {
         sponsorships = await SponsorshipService.GetSponsorshipRequestsAsync();
     }
 
     private async Task Refresh()
     {
-        sponsorships = await SponsorshipService.GetSponsorshipRequestsAsync();
+        await LoadSponsorshipsAsync();
+    }
+
+    private void ViewSponsorship(Guid id)
+    {
+        Navigation.NavigateTo($"/sponsorship/view/{id}");
+    }
+
+    private void EditSponsorship(Guid id)
+    {
+        Navigation.NavigateTo($"/sponsorship/edit/{id}");
+    }
+
+    private async Task ConfirmDelete(Guid id)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to cancel this request?");
+        if (confirmed)
+        {
+            await DeleteSponsorship(id);
+        }
+    }
+
+    private async Task ConfirmUpdateStatus(Guid id)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Do you want to update the status for this request?");
+        if (confirmed)
+        {
+            await UpdateStatus(id);
+        }
+    }
+
+    private async Task DeleteSponsorship(Guid id)
+    {
+        var success = await SponsorshipService.DeleteSponsorshipRequestAsync(id);
+        if (success)
+        {
+            await LoadSponsorshipsAsync();
+        }
+    }
+
+    private async Task UpdateStatus(Guid id)
+    {
+        var success = await SponsorshipService.UpdateSponsorshipStatusAsync(id);
+        if (success)
+        {
+            await LoadSponsorshipsAsync();
+        }
     }
 }

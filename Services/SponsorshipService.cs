@@ -21,25 +21,31 @@ public class SponsorshipService
         return response?.Data ?? new List<SponsorshipReadDto>();
     }
 
-    public async Task<SponsorshipReadDto?> GetSponsorshipRequestAsync(int id)
+    public async Task<SponsorshipReadDto?> GetSponsorshipRequestAsync(Guid id)
     {
         var response = await _http.GetFromJsonAsync<ApiResponse<SponsorshipReadDto>>($"{_baseUrl}/{id}");
         return response?.Data;
     }
 
-    public async Task<SponsorshipCreateDto?> AddSponsorshipRequestAsync(SponsorshipCreateDto sponsorshipRequest)
+    public async Task<bool> AddSponsorshipRequestAsync(SponsorshipCreateDto sponsorshipRequest)
     {
         var response = await _http.PostAsJsonAsync(_baseUrl, sponsorshipRequest);
-        return await response.Content.ReadFromJsonAsync<SponsorshipCreateDto>();
+        return response.IsSuccessStatusCode;
     }
 
-    public async Task<SponsorshipUpdateDto?> UpdateSponsorshipRequestAsync(SponsorshipUpdateDto sponsorshipRequest)
+    public async Task<bool> UpdateSponsorshipRequestAsync(SponsorshipUpdateDto sponsorshipRequest)
     {
         var response = await _http.PutAsJsonAsync($"{_baseUrl}/{sponsorshipRequest.SponsorshipId}", sponsorshipRequest);
-        return await response.Content.ReadFromJsonAsync<SponsorshipUpdateDto>();
+        return response.IsSuccessStatusCode;
     }
 
-    public async Task<bool> DeleteSponsorshipRequestAsync(int id)
+    public async Task<bool> UpdateSponsorshipStatusAsync(Guid id)
+    {
+        var response = await _http.PutAsync($"{_baseUrl}/{id}/status", null);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteSponsorshipRequestAsync(Guid id)
     {
         var response = await _http.DeleteAsync($"{_baseUrl}/{id}");
         return response.IsSuccessStatusCode;

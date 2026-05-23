@@ -14,6 +14,8 @@ public class SignInDto
     [MinLength(3, ErrorMessage = "Password must be at least 3 characters long")]
     public string Password { get; set; } = string.Empty;
 
+    public bool RememberMe { get; set; } = false;
+
 }
 
 public class SignInResponseDto
@@ -40,7 +42,7 @@ public class SignInUserDto
     public string LastName { get; set; } = string.Empty;
     public Guid? TenantId { get; set; }
     public int RoleId { get; set; }
-    public string StatusCode { get; set; }
+    public string StatusCode { get; set; } = string.Empty;
     public string? PasswordHash { get; set; }
 }
 
@@ -50,15 +52,15 @@ public class ChangePasswordDto
     public Guid UserId { get; set; }
 
     [Required(ErrorMessage = "Current password is required")]
-    public string CurrentPassword { get; set; }
+    public string CurrentPassword { get; set; } = null!;
 
     [Required]
     [MinLength(6, ErrorMessage = "Password must be at least 6 characters long")]
-    public string NewPassword { get; set; }
+    public string NewPassword { get; set; } = null!;
 
     [Required]
     [Compare("NewPassword", ErrorMessage = "Passwords do not match.")]
-    public string ConfirmPassword { get; set; }
+    public string ConfirmPassword { get; set; } = null!;
 }
 
 public class ChangeEmailDto
@@ -66,5 +68,5 @@ public class ChangeEmailDto
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Invalid Email Address")]
     [StringLength(200, ErrorMessage = "Email max length is 200")]
-    public string Email { get; set; }
+    public string Email { get; set; } = null!;
 }

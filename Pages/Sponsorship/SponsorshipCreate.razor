@@ -385,20 +385,24 @@ else
             else
             {
                 viewModel = sponsorship;
-                updateModel = new SponsorshipUpdateDto
+                // Only initialize updateModel if it hasn't been set yet (first load)
+                if (updateModel.SponsorshipId == Guid.Empty)
                 {
-                    SponsorshipId = sponsorship.SponsorshipId,
-                    RequestTitle = sponsorship.RequestTitle,
-                    RequestorName = sponsorship.RequestorName,
-                    Department = sponsorship.DepartmentCode,
-                    SponsorshipType = sponsorship.SponsorshipType,
-                    EventOrganisationName = sponsorship.EventOrganisationName,
-                    EventDate = sponsorship.EventDate,
-                    RequestedAmount = sponsorship.RequestedAmount,
-                    Purpose = sponsorship.Purpose,
-                    ExpectedBusinessBenefit = sponsorship.ExpectedBusinessBenefit,
-                    Remarks = sponsorship.Remarks
-                };
+                    updateModel = new SponsorshipUpdateDto
+                    {
+                        SponsorshipId = sponsorship.SponsorshipId,
+                        RequestTitle = sponsorship.RequestTitle,
+                        RequestorName = sponsorship.RequestorName,
+                        Department = sponsorship.DepartmentCode,
+                        SponsorshipType = sponsorship.SponsorshipType,
+                        EventOrganisationName = sponsorship.EventOrganisationName,
+                        EventDate = sponsorship.EventDate,
+                        RequestedAmount = sponsorship.RequestedAmount,
+                        Purpose = sponsorship.Purpose,
+                        ExpectedBusinessBenefit = sponsorship.ExpectedBusinessBenefit,
+                        Remarks = sponsorship.Remarks
+                    };
+                }
             }
         }
 

@@ -142,7 +142,14 @@ else
             </div>
 
             <div class="mt-4">
+                @if (updateModel.StatusCode == "DRA"){
+                <button type="button" class="btn btn-outline-secondary me-2" @onclick="SaveAsDraft">Save As Draft</button>
+                <button type="submit" class="btn btn-primary me-2">Submit Request</button>
+}
+                else
+                {
                 <button type="submit" class="btn btn-primary me-2">Update Request</button>
+                }
                 <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
             </div>
         </form>
@@ -305,7 +312,8 @@ else
         RequestedAmount = 0m,
         Purpose = string.Empty,
         ExpectedBusinessBenefit = string.Empty,
-        Remarks = string.Empty
+        Remarks = string.Empty,
+        StatusCode = string.Empty
     };
 
     private List<DropdownItem> departments = new();
@@ -346,7 +354,8 @@ else
                         RequestedAmount = sponsorship.RequestedAmount,
                         Purpose = sponsorship.Purpose,
                         ExpectedBusinessBenefit = sponsorship.ExpectedBusinessBenefit,
-                        Remarks = sponsorship.Remarks
+                        Remarks = sponsorship.Remarks,
+                        StatusCode = sponsorship.StatusCode
                     };
                 }
             }

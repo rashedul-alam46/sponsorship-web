@@ -105,6 +105,7 @@ public class SponsorshipUpdateDto
     public string? ExpectedBusinessBenefit { get; set; }
     public string? Remarks { get; set; }
     public Guid? UpdatedBy { get; set; }
+    public string? StatusCode { get; set; }
 }
 
 public class SponsorshipRequestStatusUpdateDto

@@ -27,33 +27,35 @@ else
 {
     <table class="table table-striped">
         <thead>
-            <tr>
-                <th>Sponsorship ID</th>
+            <tr>                
                 <th>Title</th>
                 <th>Requestor</th>
+                <th>Department</th>
+                 <th>Type</th>
                 <th>Organisation</th>
-                <th>Type</th>
-                <th>Requested Amount</th>
+               <th>Event Date</th>
+                <th>Req. Amount</th>
                 <th>Purpose</th>
-                <th>Expected Business Benefit</th>
-                <th>Remarks</th>
-                <th>Event Date</th>
+                <th>Business Benefit</th>
+                <th>Remarks</th>                
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var sponsorship in filteredSponsorships)
             {
-                <tr>
-                    <td>@sponsorship.SponsorshipId</td>
+                <tr>                    
                     <td>@sponsorship.RequestTitle</td>
                     <td>@sponsorship.RequestorName</td>
+                    <td>@sponsorship.DepartmentName</td>
+                    <td>@sponsorship.SponsorshipTypeName</td>
                     <td>@sponsorship.EventOrganisationName</td>
-                    <td>@sponsorship.SponsorshipType</td>
+                    <td>@sponsorship.EventDate.ToString("yyyy-MM-dd")</td>
                     <td>@sponsorship.RequestedAmount</td>
                     <td>@sponsorship.Purpose</td>
                     <td>@sponsorship.ExpectedBusinessBenefit</td>
-                    <td>@sponsorship.Remarks</td>
-                    <td>@sponsorship.EventDate.ToString("yyyy-MM-dd")</td>
+                    <td>@sponsorship.Remarks</td>                    
+                    <td>@sponsorship.StatusName</td>
                 </tr>
             }
         </tbody>

@@ -23,6 +23,8 @@ public class SponsorshipReadDto
     public string Purpose { get; set; }
     public string? ExpectedBusinessBenefit { get; set; }
     public string? Remarks { get; set; }
+    public string StatusCode { get; set; }
+    public string StatusName { get; set; }
 }
 
 public class SponsorshipCreateDto

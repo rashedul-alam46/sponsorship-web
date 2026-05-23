@@ -2,6 +2,7 @@
 @inject NavigationManager Navigation
 @using Sponsorship
 
+
 <PageTitle>Home</PageTitle>
 
 <div class="home-container">
@@ -38,7 +39,7 @@
     protected override void OnInitialized()
     {
         // Check if user is logged in
-        var user = Login.SessionStorage.GetUser();
+        var user = SessionStorage.GetUser();
         if (user == null)
         {
             Navigation.NavigateTo("/login", forceLoad: true);
@@ -47,7 +48,7 @@
 
     private string GetWelcomeMessage()
     {
-        var user = Login.SessionStorage.GetUser();
+        var user = SessionStorage.GetUser();
         if (user != null)
         {
             return $"Welcome, {user.FirstName} {user.LastName}!";

@@ -65,6 +65,8 @@ public class SponsorshipCreateDto
 
     public Guid? CreatedBy { get; set; }
 
+    public string? SaveAsDraft { get; set; }
+
 
 }
 

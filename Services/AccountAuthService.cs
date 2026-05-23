@@ -24,6 +24,13 @@ public class AccountAuthService
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<ApiAuthResponse<SignInResponseDto>>();
+                if (result?.Success == true && result.Data != null)
+                {
+                    // Store user data in session storage
+                    SessionStorage.SetUser(result.Data);
+                    // Store tokens securely
+                    StoreTokens(result.Data);
+                }
                 return result ?? new ApiAuthResponse<SignInResponseDto>
                 {
                     Success = false,

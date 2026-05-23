@@ -116,19 +116,21 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadSponsorshipsAsync();
+        var currentUser = SessionStorage.GetUser();
+        await LoadSponsorshipsAsync(currentUser?.UserId ?? Guid.Empty, currentUser?.RoleId ?? 0);
         // Capture current user's role for UI conditional logic
-        currentRoleId = SessionStorage.GetUser()?.RoleId ?? 0;
+        currentRoleId = currentUser?.RoleId ?? 0;
     }
 
-    private async Task LoadSponsorshipsAsync()
+    private async Task LoadSponsorshipsAsync(Guid userId, int roleId)
     {
-        sponsorships = await SponsorshipService.GetSponsorshipRequestsAsync();
+        sponsorships = await SponsorshipService.GetSponsorshipRequestsAsync(userId, roleId);
     }
 
     private async Task Refresh()
     {
-        await LoadSponsorshipsAsync();
+        var currentUser = SessionStorage.GetUser();
+        await LoadSponsorshipsAsync(currentUser?.UserId ?? Guid.Empty, currentUser?.RoleId ?? 0);
     }
 
     private void ViewSponsorship(Guid id)
@@ -172,7 +174,8 @@ else
         var success = await SponsorshipService.DeleteSponsorshipRequestAsync(id);
         if (success)
         {
-            await LoadSponsorshipsAsync();
+            var currentUser = SessionStorage.GetUser();
+            await LoadSponsorshipsAsync(currentUser?.UserId ?? Guid.Empty, currentUser?.RoleId ?? 0);
         }
     }
 
@@ -195,7 +198,8 @@ else
         var success = await SponsorshipService.UpdateSponsorshipStatusAsync(statusUpdate);
         if (success)
         {
-            await LoadSponsorshipsAsync();
+            var currentUser = SessionStorage.GetUser();
+            await LoadSponsorshipsAsync(currentUser?.UserId ?? Guid.Empty, currentUser?.RoleId ?? 0);
         }
     }
 }

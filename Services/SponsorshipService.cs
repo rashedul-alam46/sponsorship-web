@@ -15,9 +15,10 @@ public class SponsorshipService
         _baseUrl = config["ApiSettings:BaseUrl"] + "/sponsorshiprequests";
     }
 
-    public async Task<List<SponsorshipReadDto>> GetSponsorshipRequestsAsync()
+    public async Task<List<SponsorshipReadDto>> GetSponsorshipRequestsAsync(Guid userId, int roleId)
     {
-        var response = await _http.GetFromJsonAsync<ApiResponse<List<SponsorshipReadDto>>>(_baseUrl);
+        var url = $"{_baseUrl}?userId={userId}&roleId={roleId}";
+        var response = await _http.GetFromJsonAsync<ApiResponse<List<SponsorshipReadDto>>>(url);
         return response?.Data ?? new List<SponsorshipReadDto>();
     }
 

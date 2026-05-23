@@ -21,162 +21,251 @@ else if (!string.IsNullOrEmpty(loadError))
 {
     <div class="alert alert-danger">@loadError</div>
 }
-else if (!string.IsNullOrEmpty(invalidSubmitMessage))
-{
-    <div class="alert alert-warning">@invalidSubmitMessage</div>
-}
 else
 {
+    @if (!string.IsNullOrEmpty(invalidSubmitMessage))
+    {
+        <div class="alert alert-warning">@invalidSubmitMessage</div>
+    }
+
     @if (isEdit)
     {
-        <EditForm Model="updateModel" OnValidSubmit="SaveSponsorship" OnInvalidSubmit="HandleInvalidSubmit">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Request Title</label>
-                        <InputText class="form-control" @bind-Value="updateModel.RequestTitle" />
-                        <ValidationMessage For="() => updateModel.RequestTitle" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Requestor Name</label>
-                        <InputText class="form-control" @bind-Value="updateModel.RequestorName" />
-                        <ValidationMessage For="() => updateModel.RequestorName" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Department</label>
-                        <InputSelect class="form-select" @bind-Value="updateModel.Department">
-                            <option value="">Select department</option>
-                            @foreach (var item in departments)
-                            {
-                                <option value="@item.Value">@item.Text</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="() => updateModel.Department" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Sponsorship Type</label>
-                        <InputSelect class="form-select" @bind-Value="updateModel.SponsorshipType">
-                            <option value="">Select sponsorship type</option>
-                            @foreach (var item in sponsorshipTypes)
-                            {
-                                <option value="@item.Value">@item.Text</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="() => updateModel.SponsorshipType" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Event Organisation</label>
-                        <InputText class="form-control" @bind-Value="updateModel.EventOrganisationName" />
-                        <ValidationMessage For="() => updateModel.EventOrganisationName" />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Event Date</label>
-                        <InputDate class="form-control" @bind-Value="updateModel.EventDate" />
-                        <ValidationMessage For="() => updateModel.EventDate" />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Requested Amount</label>
-                        <InputNumber class="form-control" @bind-Value="updateModel.RequestedAmount" />
-                        <ValidationMessage For="() => updateModel.RequestedAmount" />
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Purpose</label>
-                        <InputTextArea class="form-control" @bind-Value="updateModel.Purpose" Rows="3" />
-                        <ValidationMessage For="() => updateModel.Purpose" />
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Expected Business Benefit</label>
-                        <InputTextArea class="form-control" @bind-Value="updateModel.ExpectedBusinessBenefit" Rows="2" />
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Remarks</label>
-                        <InputTextArea class="form-control" @bind-Value="updateModel.Remarks" Rows="2" />
-                    </div>
+        <form novalidate @onsubmit="HandleSubmit">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Request Title</label>
+                    <input class='@GetFieldCss("RequestTitle", "form-control")'
+                           @bind="updateModel.RequestTitle"
+                           @bind:event="oninput" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("RequestTitle")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("RequestTitle")</div>
+                    }
                 </div>
-
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary me-2">Update Request</button>
-                    <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+                <div class="col-md-6">
+                    <label class="form-label">Requestor Name</label>
+                    <input class='@GetFieldCss("RequestorName", "form-control")'
+                           @bind="updateModel.RequestorName"
+                           @bind:event="oninput" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("RequestorName")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("RequestorName")</div>
+                    }
                 </div>
-            </EditForm>
-        }
-        else
-        {
-            <EditForm Model="createModel" OnValidSubmit="SaveSponsorship" OnInvalidSubmit="HandleInvalidSubmit">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Request Title</label>
-                        <InputText class="form-control" @bind-Value="createModel.RequestTitle" />
-                        <ValidationMessage For="() => createModel.RequestTitle" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Requestor Name</label>
-                        <InputText class="form-control" @bind-Value="createModel.RequestorName" />
-                        <ValidationMessage For="() => createModel.RequestorName" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Department</label>
-                        <InputSelect class="form-select" @bind-Value="createModel.Department">
-                            <option value="">Select department</option>
-                            @foreach (var item in departments)
-                            {
-                                <option value="@item.Value">@item.Text</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="() => createModel.Department" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Sponsorship Type</label>
-                        <InputSelect class="form-select" @bind-Value="createModel.SponsorshipType">
-                            <option value="">Select sponsorship type</option>
-                            @foreach (var item in sponsorshipTypes)
-                            {
-                                <option value="@item.Value">@item.Text</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="() => createModel.SponsorshipType" />
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Event Organisation</label>
-                        <InputText class="form-control" @bind-Value="createModel.EventOrganisationName" />
-                        <ValidationMessage For="() => createModel.EventOrganisationName" />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Event Date</label>
-                        <InputDate class="form-control" @bind-Value="createModel.EventDate" />
-                        <ValidationMessage For="() => createModel.EventDate" />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Requested Amount</label>
-                        <InputNumber class="form-control" @bind-Value="createModel.RequestedAmount" />
-                        <ValidationMessage For="() => createModel.RequestedAmount" />
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Purpose</label>
-                        <InputTextArea class="form-control" @bind-Value="createModel.Purpose" Rows="3" />
-                        <ValidationMessage For="() => createModel.Purpose" />
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Expected Business Benefit</label>
-                        <InputTextArea class="form-control" @bind-Value="createModel.ExpectedBusinessBenefit" Rows="2" />
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Remarks</label>
-                        <InputTextArea class="form-control" @bind-Value="createModel.Remarks" Rows="2" />
-                    </div>
+                <div class="col-md-6">
+                    <label class="form-label">Department</label>
+                    <select class='@GetFieldCss("Department", "form-select")'
+                            @bind="updateModel.Department">
+                        <option value="">Select department</option>
+                        @foreach (var item in departments)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    @if (!string.IsNullOrEmpty(GetFieldError("Department")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("Department")</div>
+                    }
                 </div>
-
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary me-2">Submit Request</button>
-                    <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+                <div class="col-md-6">
+                    <label class="form-label">Sponsorship Type</label>
+                    <select class='@GetFieldCss("SponsorshipType", "form-select")'
+                            @bind="updateModel.SponsorshipType">
+                        <option value="">Select sponsorship type</option>
+                        @foreach (var item in sponsorshipTypes)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    @if (!string.IsNullOrEmpty(GetFieldError("SponsorshipType")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("SponsorshipType")</div>
+                    }
                 </div>
-            </EditForm>
-        }
+                <div class="col-md-6">
+                    <label class="form-label">Event Organisation</label>
+                    <input class='@GetFieldCss("EventOrganisationName", "form-control")'
+                           @bind="updateModel.EventOrganisationName"
+                           @bind:event="oninput" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("EventOrganisationName")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("EventOrganisationName")</div>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Event Date</label>
+                    <input type="date"
+                           class='@GetFieldCss("EventDate", "form-control")'
+                           @bind="updateModel.EventDate" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("EventDate")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("EventDate")</div>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Requested Amount</label>
+                    <input type="number"
+                           class='@GetFieldCss("RequestedAmount", "form-control")'
+                           min="0"
+                           step="0.01"
+                           @bind="updateModel.RequestedAmount" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("RequestedAmount")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("RequestedAmount")</div>
+                    }
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Purpose</label>
+                    <textarea class='@GetFieldCss("Purpose", "form-control")'
+                              @bind="updateModel.Purpose"
+                              @bind:event="oninput"
+                              rows="3"></textarea>
+                    @if (!string.IsNullOrEmpty(GetFieldError("Purpose")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("Purpose")</div>
+                    }
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Expected Business Benefit</label>
+                    <textarea class="form-control"
+                              @bind="updateModel.ExpectedBusinessBenefit"
+                              @bind:event="oninput"
+                              rows="2"></textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Remarks</label>
+                    <textarea class="form-control"
+                              @bind="updateModel.Remarks"
+                              @bind:event="oninput"
+                              rows="2"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary me-2">Update Request</button>
+                <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <form novalidate @onsubmit="HandleSubmit">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Request Title</label>
+                    <input class='@GetFieldCss("RequestTitle", "form-control")'
+                           @bind="createModel.RequestTitle"
+                           @bind:event="oninput" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("RequestTitle")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("RequestTitle")</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Requestor Name</label>
+                    <input class='@GetFieldCss("RequestorName", "form-control")'
+                           @bind="createModel.RequestorName"
+                           @bind:event="oninput" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("RequestorName")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("RequestorName")</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Department</label>
+                    <select class='@GetFieldCss("Department", "form-select")'
+                            @bind="createModel.Department">
+                        <option value="">Select department</option>
+                        @foreach (var item in departments)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    @if (!string.IsNullOrEmpty(GetFieldError("Department")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("Department")</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Sponsorship Type</label>
+                    <select class='@GetFieldCss("SponsorshipType", "form-select")'
+                            @bind="createModel.SponsorshipType">
+                        <option value="">Select sponsorship type</option>
+                        @foreach (var item in sponsorshipTypes)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    @if (!string.IsNullOrEmpty(GetFieldError("SponsorshipType")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("SponsorshipType")</div>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Event Organisation</label>
+                    <input class='@GetFieldCss("EventOrganisationName", "form-control")'
+                           @bind="createModel.EventOrganisationName"
+                           @bind:event="oninput" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("EventOrganisationName")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("EventOrganisationName")</div>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Event Date</label>
+                    <input type="date"
+                           class='@GetFieldCss("EventDate", "form-control")'
+                           @bind="createModel.EventDate" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("EventDate")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("EventDate")</div>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Requested Amount</label>
+                    <input type="number"
+                           class='@GetFieldCss("RequestedAmount", "form-control")'
+                           min="0"
+                           step="0.01"
+                           @bind="createModel.RequestedAmount" />
+                    @if (!string.IsNullOrEmpty(GetFieldError("RequestedAmount")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("RequestedAmount")</div>
+                    }
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Purpose</label>
+                    <textarea class='@GetFieldCss("Purpose", "form-control")'
+                              @bind="createModel.Purpose"
+                              @bind:event="oninput"
+                              rows="3"></textarea>
+                    @if (!string.IsNullOrEmpty(GetFieldError("Purpose")))
+                    {
+                        <div class="invalid-feedback">@GetFieldError("Purpose")</div>
+                    }
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Expected Business Benefit</label>
+                    <textarea class="form-control"
+                              @bind="createModel.ExpectedBusinessBenefit"
+                              @bind:event="oninput"
+                              rows="2"></textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Remarks</label>
+                    <textarea class="form-control"
+                              @bind="createModel.Remarks"
+                              @bind:event="oninput"
+                              rows="2"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="button" class="btn btn-outline-secondary me-2" @onclick="SaveAsDraft">Save As Draft</button>
+                <button type="submit" class="btn btn-primary me-2">Submit Request</button>
+                <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+            </div>
+        </form>
     }
 }
 
@@ -274,6 +363,16 @@ else
 
     private async Task SaveSponsorship()
     {
+        await SaveSponsorshipInternal(false);
+    }
+
+    private async Task SaveAsDraft()
+    {
+        await SaveSponsorshipInternal(true);
+    }
+
+    private async Task SaveSponsorshipInternal(bool saveAsDraft)
+    {
         invalidSubmitMessage = string.Empty;
         var currentUser = SessionStorage.GetUser();
 
@@ -297,6 +396,8 @@ else
                 createModel.CreatedBy = currentUser.UserId;
             }
 
+            createModel.SaveAsDraft = saveAsDraft ? "Y" : "N";
+
             var success = await SponsorshipService.AddSponsorshipRequestAsync(createModel);
             if (success)
             {
@@ -306,10 +407,137 @@ else
     }
 
     private string invalidSubmitMessage = string.Empty;
+    private readonly Dictionary<string, string> createFieldErrors = new();
+    private readonly Dictionary<string, string> updateFieldErrors = new();
 
-    private void HandleInvalidSubmit(EditContext editContext)
+    private async Task HandleSubmit()
     {
-        invalidSubmitMessage = "Please complete the required fields before submitting.";
+        invalidSubmitMessage = string.Empty;
+        ClearFieldErrors();
+
+        if (!ValidateForm())
+        {
+            invalidSubmitMessage = "Please complete the required fields before submitting.";
+            return;
+        }
+
+        await SaveSponsorshipInternal(false);
+    }
+
+    private void ClearFieldErrors()
+    {
+        createFieldErrors.Clear();
+        updateFieldErrors.Clear();
+    }
+
+    private bool ValidateForm()
+    {
+        var valid = true;
+
+        if (isEdit)
+        {
+            if (string.IsNullOrWhiteSpace(updateModel.RequestTitle))
+            {
+                updateFieldErrors[nameof(updateModel.RequestTitle)] = "Request Title is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(updateModel.RequestorName))
+            {
+                updateFieldErrors[nameof(updateModel.RequestorName)] = "Requestor Name is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(updateModel.Department))
+            {
+                updateFieldErrors[nameof(updateModel.Department)] = "Department is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(updateModel.SponsorshipType))
+            {
+                updateFieldErrors[nameof(updateModel.SponsorshipType)] = "Sponsorship Type is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(updateModel.EventOrganisationName))
+            {
+                updateFieldErrors[nameof(updateModel.EventOrganisationName)] = "Event Organisation is required.";
+                valid = false;
+            }
+
+            if (updateModel.RequestedAmount <= 0)
+            {
+                updateFieldErrors[nameof(updateModel.RequestedAmount)] = "Requested Amount must be greater than 0.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(updateModel.Purpose))
+            {
+                updateFieldErrors[nameof(updateModel.Purpose)] = "Purpose is required.";
+                valid = false;
+            }
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(createModel.RequestTitle))
+            {
+                createFieldErrors[nameof(createModel.RequestTitle)] = "Request Title is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(createModel.RequestorName))
+            {
+                createFieldErrors[nameof(createModel.RequestorName)] = "Requestor Name is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(createModel.Department))
+            {
+                createFieldErrors[nameof(createModel.Department)] = "Department is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(createModel.SponsorshipType))
+            {
+                createFieldErrors[nameof(createModel.SponsorshipType)] = "Sponsorship Type is required.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(createModel.EventOrganisationName))
+            {
+                createFieldErrors[nameof(createModel.EventOrganisationName)] = "Event Organisation is required.";
+                valid = false;
+            }
+
+            if (createModel.RequestedAmount <= 0)
+            {
+                createFieldErrors[nameof(createModel.RequestedAmount)] = "Requested Amount must be greater than 0.";
+                valid = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(createModel.Purpose))
+            {
+                createFieldErrors[nameof(createModel.Purpose)] = "Purpose is required.";
+                valid = false;
+            }
+        }
+
+        return valid;
+    }
+
+    private string? GetFieldError(string fieldName)
+    {
+        return isEdit
+            ? updateFieldErrors.TryGetValue(fieldName, out var updateError) ? updateError : null
+            : createFieldErrors.TryGetValue(fieldName, out var createError) ? createError : null;
+    }
+
+    private string GetFieldCss(string fieldName, string baseClass)
+    {
+        return string.IsNullOrEmpty(GetFieldError(fieldName))
+            ? baseClass
+            : $"{baseClass} is-invalid";
     }
 
     private void GoBack()

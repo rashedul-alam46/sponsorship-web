@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Sponsorship;
 using Sponsorship.Services;
 using SponsorshipWeb;
 
@@ -8,6 +9,13 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+// Bind ApiSettings from appsettings.json
+var apiSettings = new ApiSettings();
+builder.Configuration.GetSection("ApiSettings").Bind(apiSettings);
+builder.Services.AddSingleton(apiSettings);
+
+// Register the SponsorshipService for dependency injection
 builder.Services.AddScoped<SponsorshipService>();
 
 await builder.Build().RunAsync();

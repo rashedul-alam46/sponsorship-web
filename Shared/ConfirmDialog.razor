@@ -1,0 +1,88 @@
+@using Microsoft.AspNetCore.Components
+
+@if (Visible)
+{
+    <div class="confirm-backdrop" @onclick="() => Close(false)"></div>
+    <div class="confirm-container" role="dialog" aria-modal="true">
+        <div class="confirm-box">
+            <div class="confirm-header">
+                <h5>@Title</h5>
+            </div>
+            <div class="confirm-body">
+                <p>@Message</p>
+            </div>
+            <div class="confirm-footer text-end">
+                <button class="btn btn-secondary me-2" @onclick="() => Close(false)">No</button>
+                <button class="btn btn-primary" @onclick="() => Close(true)">Yes</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private TaskCompletionSource<bool>? _tcs;
+
+    public bool Visible { get; private set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Confirm";
+
+    [Parameter]
+    public string Message { get; set; } = string.Empty;
+
+    public Task<bool> Show(string message, string title = "Confirm")
+    {
+        Message = message;
+        Title = title;
+        Visible = true;
+        StateHasChanged();
+        _tcs = new TaskCompletionSource<bool>();
+        return _tcs.Task;
+    }
+
+    private void Close(bool result)
+    {
+        Visible = false;
+        try
+        {
+            _tcs?.TrySetResult(result);
+        }
+        catch { }
+        StateHasChanged();
+    }
+}
+
+<style>
+    .confirm-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1050;
+    }
+
+    .confirm-container {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1060;
+        pointer-events: none;
+    }
+
+    .confirm-box {
+        pointer-events: auto;
+        background: white;
+        padding: 1rem;
+        border-radius: 6px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        max-width: 420px;
+        width: 100%;
+    }
+
+    .confirm-header h5 {
+        margin: 0 0 0.5rem 0;
+    }
+
+    .confirm-body p { margin: 0 0 1rem 0; }
+</style>

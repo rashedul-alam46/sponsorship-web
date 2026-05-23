@@ -1,0 +1,99 @@
+@using global::Sponsorship.Models
+@using System
+@using System.Linq
+@inject SponsorshipService SponsorshipService
+
+@if (isVisible)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block" tabindex="-1" role="dialog" aria-modal="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sponsorship History</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if (isLoading)
+                    {
+                        <div class="text-center py-4">
+                            <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
+                        </div>
+                    }
+                    else if (!string.IsNullOrEmpty(loadError))
+                    {
+                        <div class="alert alert-danger">@loadError</div>
+                    }
+                    else if (!history.Any())
+                    {
+                        <div class="alert alert-secondary">No history found for this sponsorship request.</div>
+                    }
+                    else
+                    {
+                        <div class="list-group list-group-flush">
+
+                            <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Notes</th>
+                <th>Action By</th>
+                <th>Action Date</th>               
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in history.OrderByDescending(h => h.ActionDate)) 
+            {
+                <tr>
+                    <td>@item.Notes</td>
+                    <td>@item.ActionByName</td>
+                    <td>@item.ActionDate?.ToString("yyyy-MM-dd HH:mm")</td>
+                    
+                    </tr>
+                    }
+        </tbody>
+    </table>
+
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isVisible;
+    private bool isLoading;
+    private string? loadError;
+    private List<WorkflowHistoryReadDto> history = new();
+
+    public async Task Show(Guid sponsorshipId)
+    {
+        loadError = null;
+        isLoading = true;
+        isVisible = true;
+        history.Clear();
+
+        try
+        {
+            history = await SponsorshipService.GetSponsorshipHistoryAsync(sponsorshipId);
+        }
+        catch (Exception ex)
+        {
+            loadError = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void Close()
+    {
+        isVisible = false;
+    }
+}

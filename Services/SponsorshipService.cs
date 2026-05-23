@@ -45,6 +45,25 @@ public class SponsorshipService
         return response.IsSuccessStatusCode;
     }
 
+    public async Task<List<WorkflowHistoryReadDto>> GetSponsorshipHistoryAsync(Guid id)
+    {
+        var response = await _http.GetAsync($"{_baseUrl}/{id}/history");
+        if (!response.IsSuccessStatusCode)
+        {
+            return new List<WorkflowHistoryReadDto>();
+        }
+
+        try
+        {
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<WorkflowHistoryReadDto>>>();
+            return apiResponse?.Data ?? new List<WorkflowHistoryReadDto>();
+        }
+        catch
+        {
+            return new List<WorkflowHistoryReadDto>();
+        }
+    }
+
     public async Task<bool> DeleteSponsorshipRequestAsync(Guid id)
     {
         var response = await _http.DeleteAsync($"{_baseUrl}/{id}");

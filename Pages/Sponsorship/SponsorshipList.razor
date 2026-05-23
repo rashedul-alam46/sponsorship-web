@@ -8,6 +8,7 @@
 @inject SponsorshipService SponsorshipService
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
+@using SponsorshipWeb.Shared
 
 <h3>Sponsorships</h3>
 
@@ -67,16 +68,25 @@ else
                             </button>
                             <ul class="dropdown-menu">
                                 <li><button class="dropdown-item" @onclick="() => ViewSponsorship(sponsorship.SponsorshipId)">View</button></li>
-                                <li><button class="dropdown-item" @onclick="() => EditSponsorship(sponsorship.SponsorshipId)">Edit</button></li>
+                                 
+                                 @if ((currentRoleId == 4) && (sponsorship.StatusCode == "PMA" || sponsorship.StatusCode == "DRA"))
+                                  {
+                                    
+                                    
+                                    <li><button class="dropdown-item" @onclick="() => EditSponsorship(sponsorship.SponsorshipId)">Edit</button></li>
+                                    
+                                }
+                               
                                 @* Show Status Update only for RoleId 2 or 3; hide for RoleId 4 *@
-                                @if (currentRoleId == 2 || currentRoleId == 3)
+                                @if ((currentRoleId == 2 || currentRoleId == 3) &&  (sponsorship.StatusCode == "PMA" || sponsorship.StatusCode == "PFR"))
                                 {
                                     <li><button class="dropdown-item" @onclick="() => ConfirmUpdateStatus(sponsorship.SponsorshipId, sponsorship.StatusCode)">Status Update</button></li>
                                 }
-                                <li><hr class="dropdown-divider" /></li>
+                                <li><button class="dropdown-item" @onclick="() => ShowHistory(sponsorship.SponsorshipId)">View History</button></li>
                                 @* Show Cancel only when status code is exactly "PMA" *@
-                                @if (sponsorship.StatusCode == "PMA")
+                                @if (sponsorship.StatusCode == "PMA" && currentRoleId == 4)
                                 {
+                                     <li><hr class="dropdown-divider" /></li>
                                     <li><button class="dropdown-item text-danger" @onclick="() => ConfirmDelete(sponsorship.SponsorshipId)">Cancel</button></li>
                                 }
                             </ul>
@@ -88,10 +98,13 @@ else
     </table>
 }
 
+<SponsorshipHistoryg @ref="historyDialog" />
+
 @code {
     private List<SponsorshipReadDto>? sponsorships;
     private string searchText = string.Empty;
     private int currentRoleId = 0;
+    private SponsorshipHistoryg? historyDialog;
 
     private IEnumerable<SponsorshipReadDto> filteredSponsorships =>
         string.IsNullOrWhiteSpace(searchText)
@@ -134,6 +147,14 @@ else
         if (confirmed)
         {
             await DeleteSponsorship(id);
+        }
+    }
+
+    private async Task ShowHistory(Guid id)
+    {
+        if (historyDialog != null)
+        {
+            await historyDialog.Show(id);
         }
     }
 

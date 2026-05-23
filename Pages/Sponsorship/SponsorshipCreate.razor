@@ -1,6 +1,5 @@
 @page "/sponsorship/new"
 @page "/sponsorship/edit/{Id:guid}"
-@page "/sponsorship/view/{Id:guid}"
 
 @using global::Sponsorship.Models
 @inject SponsorshipService SponsorshipService
@@ -28,50 +27,11 @@ else if (!string.IsNullOrEmpty(invalidSubmitMessage))
 }
 else
 {
-    @if (isView)
+    @if (isEdit)
     {
-        <dl class="row">
-            <dt class="col-sm-3">Title</dt>
-            <dd class="col-sm-9">@viewModel?.RequestTitle</dd>
-
-            <dt class="col-sm-3">Requestor</dt>
-            <dd class="col-sm-9">@viewModel?.RequestorName</dd>
-
-            <dt class="col-sm-3">Department</dt>
-            <dd class="col-sm-9">@viewModel?.DepartmentName</dd>
-
-            <dt class="col-sm-3">Type</dt>
-            <dd class="col-sm-9">@viewModel?.SponsorshipTypeName</dd>
-
-            <dt class="col-sm-3">Organisation</dt>
-            <dd class="col-sm-9">@viewModel?.EventOrganisationName</dd>
-
-            <dt class="col-sm-3">Event Date</dt>
-            <dd class="col-sm-9">@viewModel?.EventDate.ToString("yyyy-MM-dd")</dd>
-
-            <dt class="col-sm-3">Requested Amount</dt>
-            <dd class="col-sm-9">@viewModel?.RequestedAmount</dd>
-
-            <dt class="col-sm-3">Purpose</dt>
-            <dd class="col-sm-9">@viewModel?.Purpose</dd>
-
-            <dt class="col-sm-3">Expected Benefit</dt>
-            <dd class="col-sm-9">@viewModel?.ExpectedBusinessBenefit</dd>
-
-            <dt class="col-sm-3">Remarks</dt>
-            <dd class="col-sm-9">@viewModel?.Remarks</dd>
-
-            <dt class="col-sm-3">Status</dt>
-            <dd class="col-sm-9">@viewModel?.StatusName</dd>
-        </dl>
-    }
-    else
-    {
-        @if (isEdit)
-        {
-            <EditForm Model="updateModel" OnValidSubmit="SaveSponsorship" OnInvalidSubmit="HandleInvalidSubmit">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
+        <EditForm Model="updateModel" OnValidSubmit="SaveSponsorship" OnInvalidSubmit="HandleInvalidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -224,11 +184,10 @@ else
     [Parameter]
     public Guid Id { get; set; }
 
-    private string PageTitleText => isView ? "View Sponsorship Request" : isEdit ? "Edit Sponsorship Request" : "Add New Sponsorship Request";
+    private string PageTitleText => isEdit ? "Edit Sponsorship Request" : "Add New Sponsorship Request";
     private string PageHeader => PageTitleText;
 
     private bool isEdit;
-    private bool isView;
     private bool isLoading = true;
     private string? loadError;
 
@@ -260,124 +219,21 @@ else
         Remarks = string.Empty
     };
 
-    private SponsorshipReadDto? viewModel;
     private List<DropdownItem> departments = new();
     private List<DropdownItem> sponsorshipTypes = new();
 
-    private string CurrentTitle
-    {
-        get => isEdit ? updateModel.RequestTitle : createModel.RequestTitle;
-        set
-        {
-            if (isEdit) updateModel.RequestTitle = value;
-            else createModel.RequestTitle = value;
-        }
-    }
-
-    private string CurrentRequestorName
-    {
-        get => isEdit ? updateModel.RequestorName : createModel.RequestorName;
-        set
-        {
-            if (isEdit) updateModel.RequestorName = value;
-            else createModel.RequestorName = value;
-        }
-    }
-
-    private string CurrentDepartment
-    {
-        get => isEdit ? updateModel.Department : createModel.Department;
-        set
-        {
-            if (isEdit) updateModel.Department = value;
-            else createModel.Department = value;
-        }
-    }
-
-    private string CurrentSponsorshipType
-    {
-        get => isEdit ? updateModel.SponsorshipType : createModel.SponsorshipType;
-        set
-        {
-            if (isEdit) updateModel.SponsorshipType = value;
-            else createModel.SponsorshipType = value;
-        }
-    }
-
-    private string CurrentEventOrganisationName
-    {
-        get => isEdit ? updateModel.EventOrganisationName : createModel.EventOrganisationName;
-        set
-        {
-            if (isEdit) updateModel.EventOrganisationName = value;
-            else createModel.EventOrganisationName = value;
-        }
-    }
-
-    private DateTime CurrentEventDate
-    {
-        get => isEdit ? updateModel.EventDate : createModel.EventDate;
-        set
-        {
-            if (isEdit) updateModel.EventDate = value;
-            else createModel.EventDate = value;
-        }
-    }
-
-    private decimal CurrentRequestedAmount
-    {
-        get => isEdit ? updateModel.RequestedAmount : createModel.RequestedAmount;
-        set
-        {
-            if (isEdit) updateModel.RequestedAmount = value;
-            else createModel.RequestedAmount = value;
-        }
-    }
-
-    private string CurrentPurpose
-    {
-        get => isEdit ? updateModel.Purpose : createModel.Purpose;
-        set
-        {
-            if (isEdit) updateModel.Purpose = value;
-            else createModel.Purpose = value;
-        }
-    }
-
-    private string? CurrentExpectedBusinessBenefit
-    {
-        get => isEdit ? updateModel.ExpectedBusinessBenefit : createModel.ExpectedBusinessBenefit;
-        set
-        {
-            if (isEdit) updateModel.ExpectedBusinessBenefit = value;
-            else createModel.ExpectedBusinessBenefit = value;
-        }
-    }
-
-    private string? CurrentRemarks
-    {
-        get => isEdit ? updateModel.Remarks : createModel.Remarks;
-        set
-        {
-            if (isEdit) updateModel.Remarks = value;
-            else createModel.Remarks = value;
-        }
-    }
-
     protected override async Task OnParametersSetAsync()
     {
-        isView = false;
         isEdit = false;
         loadError = null;
         isLoading = true;
 
         var path = Navigation.ToAbsoluteUri(Navigation.Uri).AbsolutePath.ToLowerInvariant();
         isEdit = path.Contains("/sponsorship/edit/");
-        isView = path.Contains("/sponsorship/view/");
 
         await LoadDropdownsAsync();
 
-        if (Id != Guid.Empty)
+        if (isEdit && Id != Guid.Empty)
         {
             var sponsorship = await SponsorshipService.GetSponsorshipRequestAsync(Id);
             if (sponsorship == null)
@@ -386,7 +242,6 @@ else
             }
             else
             {
-                viewModel = sponsorship;
                 // Only initialize updateModel if it hasn't been set yet (first load)
                 if (updateModel.SponsorshipId == Guid.Empty)
                 {

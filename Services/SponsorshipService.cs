@@ -17,9 +17,25 @@ public class SponsorshipService
 
     public async Task<List<SponsorshipReadDto>> GetSponsorshipRequestsAsync(Guid userId, int roleId)
     {
-        var url = $"{_baseUrl}?userId={userId}&roleId={roleId}";
-        var response = await _http.GetFromJsonAsync<ApiResponse<List<SponsorshipReadDto>>>(url);
-        return response?.Data ?? new List<SponsorshipReadDto>();
+        try
+        {
+            var url = $"{_baseUrl}?userId={userId}&roleId={roleId}";
+            var httpResponse = await _http.GetAsync(url);
+
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                // If API returns 4xx/5xx or invalid input, return empty list so UI shows no data available
+                return new List<SponsorshipReadDto>();
+            }
+
+            var apiResponse = await httpResponse.Content.ReadFromJsonAsync<ApiResponse<List<SponsorshipReadDto>>>();
+            return apiResponse?.Data ?? new List<SponsorshipReadDto>();
+        }
+        catch
+        {
+            // On exceptions (network, parse errors, etc.) return empty list
+            return new List<SponsorshipReadDto>();
+        }
     }
 
     public async Task<SponsorshipReadDto?> GetSponsorshipRequestAsync(Guid id)
@@ -65,9 +81,9 @@ public class SponsorshipService
         }
     }
 
-    public async Task<bool> DeleteSponsorshipRequestAsync(Guid id)
+    public async Task<bool> CancelSponsorshipRequestAsync(Guid id)
     {
-        var response = await _http.DeleteAsync($"{_baseUrl}/{id}");
+        var response = await _http.PostAsync($"{_baseUrl}/{id}/cancel", null);
         return response.IsSuccessStatusCode;
     }
 }

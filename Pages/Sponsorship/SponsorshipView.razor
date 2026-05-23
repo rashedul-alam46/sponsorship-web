@@ -62,8 +62,10 @@ else
         @if ((currentRoleId == 2 || currentRoleId == 3) && (viewModel?.StatusCode == "PMA" || viewModel?.StatusCode == "PFR"))
         {
             <button class="btn btn-primary me-2" @onclick="OnStatusUpdateClicked">Status Update</button>
-        
+        if(currentRoleId == 3)
+        {
         <button class="btn btn-danger me-2" @onclick="OnRejectClicked">Reject</button>
+        }
         }
          <button class="btn btn-secondary" @onclick="ShowHistory">History</button>
          <button class="btn btn-secondary" @onclick="GoBack">Back to List</button>

@@ -87,7 +87,7 @@ else
                                 @if (sponsorship.StatusCode == "PMA" && currentRoleId == 4)
                                 {
                                      <li><hr class="dropdown-divider" /></li>
-                                    <li><button class="dropdown-item text-danger" @onclick="() => ConfirmDelete(sponsorship.SponsorshipId)">Cancel</button></li>
+                                    <li><button class="dropdown-item text-danger" @onclick="() => ConfirmCancel(sponsorship.SponsorshipId)">Cancel</button></li>
                                 }
                             </ul>
                         </div>
@@ -143,12 +143,12 @@ else
         Navigation.NavigateTo($"/sponsorship/edit/{id}");
     }
 
-    private async Task ConfirmDelete(Guid id)
+    private async Task ConfirmCancel(Guid id)
     {
         var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to cancel this request?");
         if (confirmed)
         {
-            await DeleteSponsorship(id);
+            await UpdateStatus(id, "CAN");
         }
     }
 
@@ -169,9 +169,9 @@ else
         }
     }
 
-    private async Task DeleteSponsorship(Guid id)
+    private async Task CancelSponsorship(Guid id)
     {
-        var success = await SponsorshipService.DeleteSponsorshipRequestAsync(id);
+        var success = await SponsorshipService.CancelSponsorshipRequestAsync(id);
         if (success)
         {
             var currentUser = SessionStorage.GetUser();
@@ -184,7 +184,8 @@ else
         var _nextStatusCode = statusCode switch
         {
             "PMA" => "PFR",
-            "PFR" => "APR",           
+            "PFR" => "APR",     
+            "CAN" => "CAN",          
             _ => statusCode
         };
 

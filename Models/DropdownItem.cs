@@ -1,4 +1,4 @@
-namespace Sponsorship.Application.DTOs;
+namespace Sponsorship.Models;
 
 public class DropdownItem
 {

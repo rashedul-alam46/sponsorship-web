@@ -1,0 +1,108 @@
+@page "/login"
+@page "/"
+@inject global::Sponsorship.Services.AccountAuthService AuthService
+@inject global::Microsoft.AspNetCore.Components.NavigationManager Navigation
+@using global::Sponsorship.Models
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Login</PageTitle>
+
+<div class="login-container">
+    <div class="login-box">
+        <div class="login-header">
+            <h1>Sponsorship System</h1>
+            <p>Please sign in to continue</p>
+        </div>
+
+        <EditForm Model="@signInModel" OnValidSubmit="@HandleLogin">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <InputText id="email" class="form-control" @bind-Value="signInModel.Email" placeholder="Enter your email" />
+                <ValidationMessage For="@(() => signInModel.Email)" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <InputText id="password" type="password" class="form-control" @bind-Value="signInModel.Password" placeholder="Enter your password" />
+                <ValidationMessage For="@(() => signInModel.Password)" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @errorMessage
+                </div>
+            }
+
+            <button type="submit" class="btn btn-primary btn-login" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span>Signing in...</span>
+                }
+                else
+                {
+                    <span>Sign In</span>
+                }
+            </button>
+        </EditForm>
+
+        <div class="login-footer">
+            <p>Don't have an account? <a href="/register">Register here</a></p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private SignInDto signInModel = new();
+    private string errorMessage = string.Empty;
+    private bool isLoading = false;
+
+    private async Task HandleLogin()
+    {
+        isLoading = true;
+        errorMessage = string.Empty;
+
+        var result = await AuthService.SignInAsync(signInModel);
+
+        if (result.Success && result.Data != null)
+        {
+            // Store user data and tokens
+            AuthService.StoreTokens(result.Data);
+            
+            // Store in session storage for demonstration
+            // In production, use secure storage and set up proper authentication context
+            SessionStorage.SetUser(result.Data);
+
+            // Redirect to home page
+            Navigation.NavigateTo("/home", forceLoad: false);
+        }
+        else
+        {
+            errorMessage = result.Message ?? "An error occurred during login.";
+        }
+
+        isLoading = false;
+    }
+
+    public static class SessionStorage
+    {
+        private static SignInResponseDto? _currentUser;
+
+        public static void SetUser(SignInResponseDto user)
+        {
+            _currentUser = user;
+        }
+
+        public static SignInResponseDto? GetUser()
+        {
+            return _currentUser;
+        }
+
+        public static void Clear()
+        {
+            _currentUser = null;
+        }
+    }
+}

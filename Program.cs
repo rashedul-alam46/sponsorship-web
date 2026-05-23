@@ -15,7 +15,8 @@ var apiSettings = new ApiSettings();
 builder.Configuration.GetSection("ApiSettings").Bind(apiSettings);
 builder.Services.AddSingleton(apiSettings);
 
-// Register the SponsorshipService for dependency injection
+// Register services for dependency injection
 builder.Services.AddScoped<SponsorshipService>();
+builder.Services.AddScoped<AccountAuthService>();
 
 await builder.Build().RunAsync();

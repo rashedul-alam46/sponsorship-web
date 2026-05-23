@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Sponsorship.Application.DTOs;
+namespace Sponsorship.Models;
 
 public class AppUserReadDto
 {

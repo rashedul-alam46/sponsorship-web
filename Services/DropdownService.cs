@@ -1,5 +1,5 @@
 using System.Net.Http.Json;
-using Sponsorship.Application.DTOs;
+using Sponsorship.Models;
 
 namespace Sponsorship.Services;
 

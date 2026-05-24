@@ -22,3 +22,38 @@ The application communicates with the **Sponsorship Backend API** to perform all
 
 ## 🏗️ Frontend Structure
 
+```
+Sponsorship.Web/
+│
+├── Pages/
+│ ├── Auth/
+│ │ └── Login.razor
+│ ├── Sponsorship/
+│ │ ├── SponsorshipList.razor
+│ │ ├── SponsorshipForm.razor
+│ │ └── SponsorshipDetails.razor
+│ ├── SponsorshipTypes/
+│ │ └── SponsorshipTypes.razor
+│
+├── Services/
+│ ├── AuthService.cs
+│ ├── SponsorshipService.cs
+│ └── DropdownService.cs
+│
+├── Models/
+│ ├── DTOs/
+│ └── ViewModels/
+│
+├── Shared/
+│ ├── MainLayout.razor
+│ ├── NavMenu.razor
+│ └── LoadingSpinner.razor
+│
+├── wwwroot/
+│ ├── css/
+│ ├── js/
+│ └── images/
+│
+└── Program.cs
+```
+

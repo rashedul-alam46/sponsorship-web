@@ -26,7 +26,9 @@
 
             @if (!isLoading && currentUser != null)
             {
-                <button class="btn btn-outline-secondary btn-sm" @onclick="Logout">Logout</button>
+                <button class="btn btn-outline-secondary btn-sm" @onclick="Logout">
+                    Logout
+                </button>
             }
         </div>
 
@@ -43,23 +45,30 @@
     protected override void OnInitialized()
     {
         SessionStorage.Init(JSRuntime);
+
+        AppStateNotifier.OnChange += RefreshUser;
     }
 
     protected override async Task OnInitializedAsync()
+    {
+        await LoadUser();
+    }
+
+    private async Task LoadUser()
     {
         isLoading = true;
 
         currentUser = await SessionStorage.GetUser();
 
         isLoading = false;
+    }
 
-        StateHasChanged();
+    private async void RefreshUser()
+    {
+        currentUser = await SessionStorage.GetUser();
+        isLoading = false;
 
-        // ONLY redirect AFTER session is loaded
-        if (currentUser == null && !IsLoginPage())
-        {
-            Navigation.NavigateTo("/login", forceLoad: true);
-        }
+        await InvokeAsync(StateHasChanged);
     }
 
     private bool IsLoginPage()
@@ -78,5 +87,10 @@
         currentUser = null;
 
         Navigation.NavigateTo("/login", forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        AppStateNotifier.OnChange -= RefreshUser;
     }
 }

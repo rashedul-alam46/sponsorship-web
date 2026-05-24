@@ -152,7 +152,9 @@
 
         if (result.Success)
         {
-            // ✅ FIX: save session correctly (async)
+           
+                AppStateNotifier.Notify();
+
             await SessionStorage.SetUser(result.Data);
 
             // redirect

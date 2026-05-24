@@ -1,0 +1,103 @@
+@page "/sponsorshiptypes"
+@page "/sponsorshiptype"
+
+@using System.Linq
+@using global::Sponsorship.Models
+@using global::Sponsorship.Services
+
+@inject SponsorshipTypeService SponsorshipTypeService
+
+<h3>Sponsorship Types</h3>
+
+<div class="d-flex mb-3 align-items-center">
+    <input class="form-control me-2"
+           placeholder="Search by type name or code"
+           @bind="searchText"
+           @bind:event="oninput" />
+
+    <select class="form-select me-2" style="max-width:200px" @bind="filterActive">
+        <option value="">All</option>
+        <option value="true">Active</option>
+        <option value="false">Inactive</option>
+    </select>
+
+    <button class="btn btn-secondary" @onclick="Refresh">Refresh</button>
+</div>
+
+@if (sponsorshipTypes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!FilteredTypes.Any())
+{
+    <p>No sponsorship types found.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Type Name</th>
+                <th>Description</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var type in FilteredTypes)
+            {
+                <tr>
+                    <td><strong>@type.TypeCode</strong></td>
+                    <td>@type.TypeName</td>
+                    <td>@type.Description</td>
+                    <td>
+                        @if (type.IsActive)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<SponsorshipTypeRead>? sponsorshipTypes;
+    private string searchText = string.Empty;
+    private string? filterActive = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTypesAsync();
+    }
+
+    private async Task LoadTypesAsync()
+    {
+        // Assuming your API returns "data" as list inside response
+        var response = await SponsorshipTypeService.GetSponsorshipTypesAsync();
+
+        sponsorshipTypes = response?.ToList() ?? new List<SponsorshipTypeRead>();
+    }
+
+    private async Task Refresh()
+    {
+        await LoadTypesAsync();
+    }
+
+    private IEnumerable<SponsorshipTypeRead> FilteredTypes =>
+        (sponsorshipTypes ?? Enumerable.Empty<SponsorshipTypeRead>())
+            .Where(x =>
+                (string.IsNullOrWhiteSpace(searchText)
+                    || x.TypeName.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+                    || x.TypeCode.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                &&
+                (string.IsNullOrWhiteSpace(filterActive)
+                    || x.IsActive.ToString().ToLower() == filterActive.ToLower())
+            );
+}

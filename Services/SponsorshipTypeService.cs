@@ -14,11 +14,11 @@ public class SponsorshipTypeService
         _baseUrl = config["ApiSettings:BaseUrl"] + "/sponsorshiptypes";
     }
 
-    public async Task<List<SponsorshipTypeRead>> GetSponsorshipTypesAsync(Guid userId, int roleId)
+    public async Task<List<SponsorshipTypeRead>> GetSponsorshipTypesAsync()
     {
         try
         {
-            var url = $"{_baseUrl}?userId={userId}&roleId={roleId}";
+            var url = _baseUrl;
             var httpResponse = await _http.GetAsync(url);
 
             if (!httpResponse.IsSuccessStatusCode)

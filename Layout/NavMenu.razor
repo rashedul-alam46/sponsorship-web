@@ -2,21 +2,19 @@
     <div class="container-fluid">
         <a class="navbar-brand" href="">SponsorshipWeb</a>
 
-        <button title="Navigation menu"
-                class="navbar-toggler"
+        <button class="navbar-toggler"
+                title="Navigation menu"
                 @onclick="ToggleNavMenu">
 
             <span class="navbar-toggler-icon"></span>
-
         </button>
     </div>
 </div>
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    
+
     <nav class="nav flex-column">
 
-        <!-- Home -->
         <div class="nav-item px-3">
             <NavLink class="nav-link d-flex align-items-center"
                      href="home"
@@ -24,22 +22,18 @@
 
                 <span class="bi bi-house-door-fill menu-icon"></span>
                 <span class="menu-text">Home</span>
-
             </NavLink>
         </div>
 
-        <!-- Sponsorship -->
         <div class="nav-item px-3">
             <NavLink class="nav-link d-flex align-items-center"
                      href="sponsorships">
 
                 <span class="bi bi-cash-stack menu-icon"></span>
                 <span class="menu-text">Sponsorship</span>
-
             </NavLink>
         </div>
 
-        <!-- Sponsorship Type -->
         @if (IsAdmin())
         {
             <div class="nav-item px-3">
@@ -48,26 +42,30 @@
 
                     <span class="bi bi-tags-fill menu-icon"></span>
                     <span class="menu-text">Sponsorship Type</span>
-
                 </NavLink>
             </div>
         }
 
     </nav>
-
 </div>
-
 
 @code {
     private bool collapseNavMenu = true;
-
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private SignInResponseDto? currentUser;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
+    {
+        LoadUser();
+
+        AppStateNotifier.OnChange += LoadUser;
+    }
+
+    private async void LoadUser()
     {
         currentUser = await SessionStorage.GetUser();
+        await InvokeAsync(StateHasChanged);
     }
 
     private bool IsAdmin()
@@ -78,5 +76,10 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    public void Dispose()
+    {
+        AppStateNotifier.OnChange -= LoadUser;
     }
 }

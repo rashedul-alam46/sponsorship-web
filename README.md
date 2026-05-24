@@ -73,6 +73,15 @@ You can use the following sample credentials for testing:
 
 ---
 
+## ⚙️ Configuration
+
+Update Backend API base URL in wwwroot/appsettings.json:
+```
+{
+  "ApiBaseUrl": "https://localhost:5001"
+}
+```
+
 ## ▶️ How to Run the Frontend
 
 ```bash

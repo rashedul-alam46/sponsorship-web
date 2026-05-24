@@ -13,10 +13,11 @@
 <h3>Sponsorships</h3>
 
 <div class="d-flex mb-3 align-items-center">
-    @* <input class="form-control me-2" placeholder="Search by title, requestor, organisation"
-           @bind="searchText" @bind:event="oninput" />
-    <button class="btn btn-secondary me-2" @onclick="Refresh">Refresh</button> *@
+  
+  @if (currentRoleId == 4)
+  {
     <a class="btn btn-primary" href="/sponsorship/new">Add New</a>
+    }
 </div>
 
 @if (sponsorships == null)

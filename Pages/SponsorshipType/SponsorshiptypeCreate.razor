@@ -1,0 +1,171 @@
+@page "/sponsorshiptype/new"
+
+@using System.Net.Http.Json
+@using global::Sponsorship.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Create Sponsorship Type</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Create Sponsorship Type</h3>
+    <button class="btn btn-secondary" @onclick="GoBack">Back</button>
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+
+<form @onsubmit="HandleSubmit" novalidate>
+    <div class="row g-3">
+
+        <!-- Type Code -->
+        <div class="col-md-6">
+            <label class="form-label">Type Code</label>
+            <input class="@GetCss("TypeCode")"
+                   @bind="model.TypeCode"
+                   @bind:event="oninput" />
+            @if (HasError("TypeCode"))
+            {
+                <div class="invalid-feedback">@GetError("TypeCode")</div>
+            }
+        </div>
+
+        <!-- Type Name -->
+        <div class="col-md-6">
+            <label class="form-label">Type Name</label>
+            <input class="@GetCss("TypeName")"
+                   @bind="model.TypeName"
+                   @bind:event="oninput" />
+            @if (HasError("TypeName"))
+            {
+                <div class="invalid-feedback">@GetError("TypeName")</div>
+            }
+        </div>
+
+        <!-- Description -->
+        <div class="col-12">
+            <label class="form-label">Description</label>
+            <textarea class="@GetCss("Description")"
+                      rows="3"
+                      @bind="model.Description"
+                      @bind:event="oninput"></textarea>
+            @if (HasError("Description"))
+            {
+                <div class="invalid-feedback">@GetError("Description")</div>
+            }
+        </div>
+
+        <!-- Active -->
+        <div class="col-md-6 form-check mt-4 ms-2">
+            <input class="form-check-input"
+                   type="checkbox"
+                   @bind="model.IsActive" />
+            <label class="form-check-label">
+                Is Active
+            </label>
+        </div>
+
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary me-2">
+            Save
+        </button>
+
+        <button type="button" class="btn btn-secondary" @onclick="GoBack">
+            Cancel
+        </button>
+    </div>
+</form>
+
+@code {
+
+    private SponsorshipTypeCreate model = new()
+    {
+        TypeCode = string.Empty,
+        TypeName = string.Empty,
+        Description = string.Empty,
+        IsActive = true
+    };
+
+    private string? errorMessage;
+    private string? successMessage;
+
+    private readonly Dictionary<string, string> fieldErrors = new();
+
+    private async Task HandleSubmit()
+    {
+        errorMessage = null;
+        successMessage = null;
+        fieldErrors.Clear();
+
+        if (!Validate())
+        {
+            errorMessage = "Please fix validation errors.";
+            return;
+        }
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync("/api/sponsorshiptypes", model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "Sponsorship Type created successfully.";
+                Navigation.NavigateTo("/sponsorshiptypes");
+            }
+            else
+            {
+                errorMessage = "Failed to create Sponsorship Type.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private bool Validate()
+    {
+        bool valid = true;
+
+        if (string.IsNullOrWhiteSpace(model.TypeCode))
+        {
+            fieldErrors["TypeCode"] = "Type Code is required.";
+            valid = false;
+        }
+
+        if (string.IsNullOrWhiteSpace(model.TypeName))
+        {
+            fieldErrors["TypeName"] = "Type Name is required.";
+            valid = false;
+        }
+
+        return valid;
+    }
+
+    private string GetCss(string field)
+    {
+        return fieldErrors.ContainsKey(field)
+            ? "form-control is-invalid"
+            : "form-control";
+    }
+
+    private bool HasError(string field)
+        => fieldErrors.ContainsKey(field);
+
+    private string GetError(string field)
+        => fieldErrors.TryGetValue(field, out var msg) ? msg : string.Empty;
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/sponsorshiptypes");
+    }
+}

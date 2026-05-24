@@ -10,6 +10,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
+
 // Bind ApiSettings from appsettings.json
 var apiSettings = new ApiSettings();
 builder.Configuration.GetSection("ApiSettings").Bind(apiSettings);

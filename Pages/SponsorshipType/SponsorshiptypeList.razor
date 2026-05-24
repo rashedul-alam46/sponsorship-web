@@ -6,8 +6,13 @@
 @using global::Sponsorship.Services
 
 @inject SponsorshipTypeService SponsorshipTypeService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
 
 <h3>Sponsorship Types</h3>
+<div class="d-flex mb-3 align-items-center">   
+    <a class="btn btn-primary" href="/sponsorshiptype/new">Add New</a>
+</div>
 
 <div class="d-flex mb-3 align-items-center">
     <input class="form-control me-2"
@@ -41,6 +46,7 @@ else
                 <th>Type Name</th>
                 <th>Description</th>
                 <th>Active</th>
+                <th class="text-end">Action</th>
             </tr>
         </thead>
 
@@ -61,6 +67,38 @@ else
                             <span class="badge bg-secondary">Inactive</span>
                         }
                     </td>
+
+                    <!-- ACTION COLUMN -->
+                    <td class="text-end">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-secondary dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                &#x2022;&#x2022;&#x2022;
+                            </button>
+
+                            <ul class="dropdown-menu dropdown-menu-end">
+
+                                <!-- EDIT -->
+                                <li>
+                                    <button class="dropdown-item"
+                                            @onclick="() => EditType(type.TypeCode)">
+                                        Edit
+                                    </button>
+                                </li>
+
+                                <!-- DELETE -->
+                                <li>
+                                    <button class="dropdown-item text-danger"
+                                            @onclick="() => ConfirmDelete(type.TypeCode)">
+                                        Delete
+                                    </button>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -79,9 +117,7 @@ else
 
     private async Task LoadTypesAsync()
     {
-        // Assuming your API returns "data" as list inside response
         var response = await SponsorshipTypeService.GetSponsorshipTypesAsync();
-
         sponsorshipTypes = response?.ToList() ?? new List<SponsorshipTypeRead>();
     }
 
@@ -100,4 +136,36 @@ else
                 (string.IsNullOrWhiteSpace(filterActive)
                     || x.IsActive.ToString().ToLower() == filterActive.ToLower())
             );
+
+    // -------------------------
+    // ACTION METHODS
+    // -------------------------
+
+    private void EditType(string typeCode)
+    {
+        Navigation.NavigateTo($"/sponsorshiptype/edit/{typeCode}");
+    }
+
+    private async Task ConfirmDelete(string typeCode)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>(
+            "confirm",
+            "Are you sure you want to delete this sponsorship type?"
+        );
+
+        if (confirmed)
+        {
+            await DeleteType(typeCode);
+        }
+    }
+
+    private async Task DeleteType(string typeCode)
+    {
+        var success = await SponsorshipTypeService.DeleteSponsorshipTypeAsync(typeCode);
+
+        if (success)
+        {
+            await LoadTypesAsync();
+        }
+    }
 }

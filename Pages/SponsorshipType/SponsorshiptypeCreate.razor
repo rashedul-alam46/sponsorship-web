@@ -1,14 +1,15 @@
 @page "/sponsorshiptype/new"
+@page "/sponsorshiptype/edit/{TypeCode}"
 
 @using System.Net.Http.Json
 @using global::Sponsorship.Models
 @inject HttpClient Http
 @inject NavigationManager Navigation
 
-<PageTitle>Create Sponsorship Type</PageTitle>
+<PageTitle>Sponsorship Type</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>Create Sponsorship Type</h3>
+    <h3>@(IsEditMode ? "Edit Sponsorship Type" : "Create Sponsorship Type")</h3>
     <button class="btn btn-secondary" @onclick="GoBack">Back</button>
 </div>
 
@@ -29,8 +30,11 @@
         <div class="col-md-6">
             <label class="form-label">Type Code</label>
             <input class="@GetCss("TypeCode")"
-                   @bind="model.TypeCode"
-                   @bind:event="oninput" />
+                   value="@model.TypeCode"
+                   @oninput="OnTypeCodeChanged"
+                   type="text"
+                   disabled="@IsEditMode" />
+
             @if (HasError("TypeCode"))
             {
                 <div class="invalid-feedback">@GetError("TypeCode")</div>
@@ -43,6 +47,7 @@
             <input class="@GetCss("TypeName")"
                    @bind="model.TypeName"
                    @bind:event="oninput" />
+
             @if (HasError("TypeName"))
             {
                 <div class="invalid-feedback">@GetError("TypeName")</div>
@@ -56,6 +61,7 @@
                       rows="3"
                       @bind="model.Description"
                       @bind:event="oninput"></textarea>
+
             @if (HasError("Description"))
             {
                 <div class="invalid-feedback">@GetError("Description")</div>
@@ -76,7 +82,7 @@
 
     <div class="mt-4">
         <button type="submit" class="btn btn-primary me-2">
-            Save
+            @(IsEditMode ? "Update" : "Save")
         </button>
 
         <button type="button" class="btn btn-secondary" @onclick="GoBack">
@@ -86,6 +92,11 @@
 </form>
 
 @code {
+
+    [Parameter]
+    public string? TypeCode { get; set; }
+
+    private bool IsEditMode => !string.IsNullOrWhiteSpace(TypeCode);
 
     private SponsorshipTypeCreate model = new()
     {
@@ -99,6 +110,47 @@
     private string? successMessage;
 
     private readonly Dictionary<string, string> fieldErrors = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsEditMode)
+        {
+            await LoadForEdit(TypeCode!);
+        }
+    }
+
+    private async Task LoadForEdit(string code)
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<SponsorshipTypeCreate>(
+                $"/api/sponsorshiptypes/{code}"
+            );
+
+            if (response != null)
+            {
+                model = response;
+            }
+            else
+            {
+                errorMessage = "Sponsorship Type not found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private void OnTypeCodeChanged(ChangeEventArgs e)
+    {
+        model.TypeCode = e.Value?.ToString()?.ToUpperInvariant() ?? string.Empty;
+
+        if (fieldErrors.ContainsKey("TypeCode"))
+        {
+            fieldErrors.Remove("TypeCode");
+        }
+    }
 
     private async Task HandleSubmit()
     {
@@ -114,16 +166,30 @@
 
         try
         {
-            var response = await Http.PostAsJsonAsync("/api/sponsorshiptypes", model);
+            HttpResponseMessage response;
+
+            if (IsEditMode)
+            {
+                response = await Http.PutAsJsonAsync(
+                    $"/api/sponsorshiptypes/{TypeCode}",
+                    model
+                );
+            }
+            else
+            {
+                response = await Http.PostAsJsonAsync(
+                    "/api/sponsorshiptypes",
+                    model
+                );
+            }
 
             if (response.IsSuccessStatusCode)
             {
-                successMessage = "Sponsorship Type created successfully.";
                 Navigation.NavigateTo("/sponsorshiptypes");
             }
             else
             {
-                errorMessage = "Failed to create Sponsorship Type.";
+                errorMessage = "Operation failed.";
             }
         }
         catch (Exception ex)

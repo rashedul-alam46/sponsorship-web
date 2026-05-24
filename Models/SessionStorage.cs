@@ -1,23 +1,34 @@
-namespace Sponsorship.Models;
+using Microsoft.JSInterop;
+using Sponsorship.Models;
+using System.Text.Json;
 
 public static class SessionStorage
 {
-    private static SignInResponseDto? _currentUser;
+    private static IJSRuntime _js;
+    private const string KEY = "auth_user";
 
-    public static void SetUser(SignInResponseDto user)
+    public static void Init(IJSRuntime js)
     {
-        _currentUser = user;
+        _js = js;
     }
 
-    public static SignInResponseDto? GetUser()
+    public static async Task SetUser(SignInResponseDto user)
     {
-        return _currentUser;
+        var json = JsonSerializer.Serialize(user);
+        await _js.InvokeVoidAsync("sessionStorage.setItem", KEY, json);
     }
 
-    public static void Clear()
+    public static async Task<SignInResponseDto?> GetUser()
     {
-        _currentUser = null;
+        var json = await _js.InvokeAsync<string>("sessionStorage.getItem", KEY);
+
+        return string.IsNullOrEmpty(json)
+            ? null
+            : JsonSerializer.Deserialize<SignInResponseDto>(json);
     }
 
-    public static bool IsLoggedIn => _currentUser != null;
+    public static async Task Clear()
+    {
+        await _js.InvokeVoidAsync("sessionStorage.removeItem", KEY);
+    }
 }

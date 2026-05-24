@@ -11,19 +11,17 @@
     <main>
         <div class="top-row px-4 d-flex justify-content-between align-items-center">
             <div>
-                @{
-                    var user = GetCurrentUser();
-                    if (user != null)
-                    {
-                        <span>Welcome @user.FirstName @user.LastName</span>
-                    }
-                    else
-                    {
-                        <span>Please sign in</span>
-                    }
+                @if (currentUser != null)
+                {
+                    <span>Welcome @currentUser.FirstName @currentUser.LastName</span>
+                }
+                else
+                {
+                    <span>Please sign in</span>
                 }
             </div>
-            @if (GetCurrentUser() != null)
+
+            @if (currentUser != null)
             {
                 <button class="btn btn-outline-secondary btn-sm" @onclick="Logout">Logout</button>
             }
@@ -40,53 +38,40 @@
 
     protected override void OnInitialized()
     {
-        currentUser = SessionStorage.GetUser();
-    }
-
-    protected override void OnParametersSet()
-    {
-        RedirectIfSessionExpired();
+        SessionStorage.Init(JSRuntime);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // Log API response to console for debugging
-        var user = GetCurrentUser();
-        if (user != null)
+        if (!firstRender) return;
+
+        currentUser = await SessionStorage.GetUser();
+
+        StateHasChanged();
+
+        if (currentUser == null && !IsLoginOrRegisterPage())
         {
-            await JSRuntime.InvokeVoidAsync("console.log", "[SponsorshipWeb] API Response - Current User:", 
-                new { userId = user.UserId, firstName = user.FirstName, lastName = user.LastName, roleId = user.RoleId });
+            Navigation.NavigateTo("/login");
         }
-        else
-        {
-            await JSRuntime.InvokeVoidAsync("console.log", "[SponsorshipWeb] No user logged in - showing 'Please sign in'");
-        }
-    }
 
-    private SignInResponseDto? GetCurrentUser()
-    {
-        return SessionStorage.GetUser();
-    }
-
-    private void RedirectIfSessionExpired()
-    {
-         var user = SessionStorage.GetUser();
-
-    if (user == null && !IsLoginOrRegisterPage())
-    {
-        Navigation.NavigateTo("/login");
-    }
+        await JSRuntime.InvokeVoidAsync("console.log",
+            "[SponsorshipWeb] Current User:",
+            currentUser);
     }
 
     private bool IsLoginOrRegisterPage()
     {
-        var path = Navigation.ToAbsoluteUri(Navigation.Uri).AbsolutePath.TrimEnd('/').ToLowerInvariant();
-        return string.IsNullOrEmpty(path) || path == "/login" || path == "/register";
+        var path = Navigation.ToAbsoluteUri(Navigation.Uri)
+            .AbsolutePath
+            .TrimEnd('/')
+            .ToLowerInvariant();
+
+        return path == "/login" || path == "/register";
     }
 
-    private void Logout()
+    private async Task Logout()
     {
-        SessionStorage.Clear();
+        await SessionStorage.Clear();
         Navigation.NavigateTo("/login", forceLoad: true);
     }
 }

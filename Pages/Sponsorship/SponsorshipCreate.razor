@@ -395,7 +395,8 @@ else
     private async Task SaveSponsorshipInternal(bool saveAsDraft)
     {
         invalidSubmitMessage = string.Empty;
-        var currentUser = SessionStorage.GetUser();
+        //var currentUser = SessionStorage.GetUser();
+        var currentUser = await SessionStorage.GetUser();
 
         if (isEdit)
         {
@@ -582,7 +583,8 @@ else
 
     updateModel.StatusCode = statusCode;
 
-    var currentUser = SessionStorage.GetUser();
+    //var currentUser = SessionStorage.GetUser();
+    var currentUser = await SessionStorage.GetUser();
 
     if (currentUser?.UserId != null)
     {

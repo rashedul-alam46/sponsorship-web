@@ -1,50 +1,62 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">SponsorshipWeb</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+
+        <button title="Navigation menu"
+                class="navbar-toggler"
+                @onclick="ToggleNavMenu">
+
             <span class="navbar-toggler-icon"></span>
+
         </button>
     </div>
 </div>
+
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    
     <nav class="nav flex-column">
 
+        <!-- Home -->
         <div class="nav-item px-3">
-            <NavLink class="nav-link d-flex align-items-center" 
-                     href="home" 
+            <NavLink class="nav-link d-flex align-items-center"
+                     href="home"
                      Match="NavLinkMatch.All">
 
                 <span class="bi bi-house-door-fill menu-icon"></span>
-                <span>Home</span>
+                <span class="menu-text">Home</span>
 
             </NavLink>
         </div>
 
+        <!-- Sponsorship -->
         <div class="nav-item px-3">
-            <NavLink class="nav-link d-flex align-items-center" 
+            <NavLink class="nav-link d-flex align-items-center"
                      href="sponsorships">
 
                 <span class="bi bi-cash-stack menu-icon"></span>
-                <span>Sponsorship</span>
+                <span class="menu-text">Sponsorship</span>
 
             </NavLink>
         </div>
 
+        <!-- Sponsorship Type -->
         @if (IsAdmin())
         {
             <div class="nav-item px-3">
-                <NavLink class="nav-link d-flex align-items-center" 
+                <NavLink class="nav-link d-flex align-items-center"
                          href="sponsorshiptype">
 
                     <span class="bi bi-tags-fill menu-icon"></span>
-                    <span>Sponsorship Type</span>
+                    <span class="menu-text">Sponsorship Type</span>
 
                 </NavLink>
             </div>
         }
 
     </nav>
+
 </div>
+
 
 @code {
     private bool collapseNavMenu = true;

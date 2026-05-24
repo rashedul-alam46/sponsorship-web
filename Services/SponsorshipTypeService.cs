@@ -55,11 +55,12 @@ public class SponsorshipTypeService
         return response.IsSuccessStatusCode;
     }
 
-    public async Task<bool> UpdateSponsorshipStatusAsync(SponsorshipRequestStatusUpdateDto statusUpdate)
+    public async Task<bool> DeleteSponsorshipTypeAsync(string typeCode)
     {
-        var response = await _http.PutAsJsonAsync($"{_baseUrl}/{statusUpdate.SponsorshipId}/status", statusUpdate);
+        var response = await _http.DeleteAsync($"{_baseUrl}/{typeCode}");
         return response.IsSuccessStatusCode;
     }
+
 
 }
 

@@ -18,6 +18,7 @@ builder.Services.AddSingleton(apiSettings);
 // Register services for dependency injection
 builder.Services.AddScoped<SponsorshipService>();
 builder.Services.AddScoped<AccountAuthService>();
+builder.Services.AddScoped<SponsorshipTypeService>();
 builder.Services.AddScoped<DropdownService>();
 
 await builder.Build().RunAsync();

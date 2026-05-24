@@ -11,17 +11,20 @@
     <main>
         <div class="top-row px-4 d-flex justify-content-between align-items-center">
             <div>
-                @if (currentUser != null)
+                @if (!isLoading)
                 {
-                    <span>Welcome @currentUser.FirstName @currentUser.LastName</span>
-                }
-                else
-                {
-                    <span>Please sign in</span>
+                    if (currentUser != null)
+                    {
+                        <span>Welcome @currentUser.FirstName @currentUser.LastName</span>
+                    }
+                    else
+                    {
+                        <span>Please sign in</span>
+                    }
                 }
             </div>
 
-            @if (currentUser != null)
+            @if (!isLoading && currentUser != null)
             {
                 <button class="btn btn-outline-secondary btn-sm" @onclick="Logout">Logout</button>
             }
@@ -35,31 +38,31 @@
 
 @code {
     private SignInResponseDto? currentUser;
+    private bool isLoading = true;
 
     protected override void OnInitialized()
     {
         SessionStorage.Init(JSRuntime);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (!firstRender) return;
+        isLoading = true;
 
         currentUser = await SessionStorage.GetUser();
 
+        isLoading = false;
+
         StateHasChanged();
 
-        if (currentUser == null && !IsLoginOrRegisterPage())
+        // ONLY redirect AFTER session is loaded
+        if (currentUser == null && !IsLoginPage())
         {
-            Navigation.NavigateTo("/login");
+            Navigation.NavigateTo("/login", forceLoad: true);
         }
-
-        await JSRuntime.InvokeVoidAsync("console.log",
-            "[SponsorshipWeb] Current User:",
-            currentUser);
     }
 
-    private bool IsLoginOrRegisterPage()
+    private bool IsLoginPage()
     {
         var path = Navigation.ToAbsoluteUri(Navigation.Uri)
             .AbsolutePath
@@ -72,6 +75,8 @@
     private async Task Logout()
     {
         await SessionStorage.Clear();
+        currentUser = null;
+
         Navigation.NavigateTo("/login", forceLoad: true);
     }
 }

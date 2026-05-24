@@ -29,7 +29,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Dashboard</h5>
                         <p class="card-text">View your dashboard and analytics</p>
-                        <a href="#" class="btn btn-primary">Go to Dashboard</a>
+                        <a href="/home" class="btn btn-primary">Go to Dashboard</a>
                     </div>
                 </div>
             </div>
@@ -40,20 +40,11 @@
 @code {
     private string welcomeMessage = "Welcome to the Sponsorship System";
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnInitialized()
     {
-        if (!firstRender) return;
+        // No session logic here anymore
+        // Layout handles authentication
 
-        var user = await SessionStorage.GetUser();
-
-        if (user == null)
-        {
-            Navigation.NavigateTo("/login");
-            return;
-        }
-
-        welcomeMessage = $"Welcome, {user.FirstName} {user.LastName}!";
-
-        StateHasChanged();
+        welcomeMessage = "Welcome to the Sponsorship System";
     }
 }

@@ -13,10 +13,11 @@
 <h3>Sponsorships</h3>
 
 <div class="d-flex mb-3 align-items-center">
-    <input class="form-control me-2" placeholder="Search by title, requestor, organisation"
-           @bind="searchText" @bind:event="oninput" />
-    <button class="btn btn-secondary me-2" @onclick="Refresh">Refresh</button>
-    <a class="btn btn-primary" href="/sponsorship/new">Add New Request</a>
+  
+  @if (currentRoleId == 4)
+  {
+    <a class="btn btn-primary" href="/sponsorship/new">Add New</a>
+    }
 </div>
 
 @if (sponsorships == null)
@@ -75,15 +76,17 @@ else
                                     
                                     <li><button class="dropdown-item" @onclick="() => EditSponsorship(sponsorship.SponsorshipId)">Edit</button></li>
                                     
-                                }
-                               
-                                @* Show Status Update only for RoleId 2 or 3; hide for RoleId 4 *@
+                                }                               
+                                
                                 @if ((currentRoleId == 2 || currentRoleId == 3) &&  (sponsorship.StatusCode == "PMA" || sponsorship.StatusCode == "PFR"))
                                 {
                                     <li><button class="dropdown-item" @onclick="() => ConfirmUpdateStatus(sponsorship.SponsorshipId, sponsorship.StatusCode)">Status Update</button></li>
                                 }
+                                 @if ((currentRoleId == 1))
+                                 {
                                 <li><button class="dropdown-item" @onclick="() => ShowHistory(sponsorship.SponsorshipId)">View History</button></li>
-                                @* Show Cancel only when status code is exactly "PMA" *@
+                                }
+                                
                                 @if (sponsorship.StatusCode == "PMA" && currentRoleId == 4)
                                 {
                                      <li><hr class="dropdown-divider" /></li>
@@ -116,7 +119,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var currentUser = SessionStorage.GetUser();
+        //var currentUser = SessionStorage.GetUser();
+        var currentUser = await SessionStorage.GetUser();
         await LoadSponsorshipsAsync(currentUser?.UserId ?? Guid.Empty, currentUser?.RoleId ?? 0);
         // Capture current user's role for UI conditional logic
         currentRoleId = currentUser?.RoleId ?? 0;
@@ -129,7 +133,8 @@ else
 
     private async Task Refresh()
     {
-        var currentUser = SessionStorage.GetUser();
+        //var currentUser = SessionStorage.GetUser();
+        var currentUser = await SessionStorage.GetUser();
         await LoadSponsorshipsAsync(currentUser?.UserId ?? Guid.Empty, currentUser?.RoleId ?? 0);
     }
 
@@ -174,7 +179,8 @@ else
         var success = await SponsorshipService.CancelSponsorshipRequestAsync(id);
         if (success)
         {
-            var currentUser = SessionStorage.GetUser();
+            //var currentUser = SessionStorage.GetUser();
+            var currentUser = await SessionStorage.GetUser();
             await LoadSponsorshipsAsync(currentUser?.UserId ?? Guid.Empty, currentUser?.RoleId ?? 0);
         }
     }
@@ -189,17 +195,19 @@ else
             _ => statusCode
         };
 
+var currentUser = await SessionStorage.GetUser();
         var statusUpdate = new SponsorshipRequestStatusUpdateDto
         {
             SponsorshipId = id,
             StatusCode = _nextStatusCode,
-            UpdatedBy = SessionStorage.GetUser()?.UserId
+            UpdatedBy = currentUser?.UserId
         };
 
         var success = await SponsorshipService.UpdateSponsorshipStatusAsync(statusUpdate);
         if (success)
         {
-            var currentUser = SessionStorage.GetUser();
+            //var currentUser = await SessionStorage.GetUser();
+            
             await LoadSponsorshipsAsync(currentUser?.UserId ?? Guid.Empty, currentUser?.RoleId ?? 0);
         }
     }

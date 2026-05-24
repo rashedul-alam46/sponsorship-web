@@ -62,12 +62,15 @@ else
         @if ((currentRoleId == 2 || currentRoleId == 3) && (viewModel?.StatusCode == "PMA" || viewModel?.StatusCode == "PFR"))
         {
             <button class="btn btn-primary me-2" @onclick="OnStatusUpdateClicked">Status Update</button>
-        if(currentRoleId == 3)
+        if(currentRoleId == 2 || currentRoleId == 3)
         {
         <button class="btn btn-danger me-2" @onclick="OnRejectClicked">Reject</button>
         }
         }
-         <button class="btn btn-secondary" @onclick="ShowHistory">History</button>
+        @if ((currentRoleId == 1))
+        {
+         <button class="btn btn-secondary me-2" @onclick="ShowHistory">History</button>
+         }
          <button class="btn btn-secondary" @onclick="GoBack">Back to List</button>
     </div>
 
@@ -106,9 +109,9 @@ else
         {
             loadError = "Invalid sponsorship ID.";
         }
-
+var currentUser = await SessionStorage.GetUser();
         // capture current user's role for UI logic
-        currentRoleId = SessionStorage.GetUser()?.RoleId ?? 0;
+        currentRoleId = currentUser?.RoleId ?? 0;
 
         isLoading = false;
     }
@@ -145,12 +148,12 @@ else
             "PFR" => "APR",
             _ => statusCode
         };
-
+var currentUser = await SessionStorage.GetUser();
         var dto = new SponsorshipRequestStatusUpdateDto
         {
             SponsorshipId = viewModel.SponsorshipId,
             StatusCode = nextStatusCode,
-            UpdatedBy = SessionStorage.GetUser()?.UserId
+            UpdatedBy = currentUser?.UserId
         };
 
         var success = await SponsorshipService.UpdateSponsorshipStatusAsync(dto);
@@ -172,11 +175,13 @@ else
         var confirmed = await (confirmDialog?.Show("Are you sure you want to reject this request?", "Confirm Reject") ?? Task.FromResult(false));
         if (!confirmed) return;
 
+var currentUser = await SessionStorage.GetUser();
+
         var dto = new SponsorshipRequestStatusUpdateDto
         {
             SponsorshipId = viewModel.SponsorshipId,
             StatusCode = "REJ",
-            UpdatedBy = SessionStorage.GetUser()?.UserId
+            UpdatedBy = currentUser?.UserId
         };
 
         var success = await SponsorshipService.UpdateSponsorshipStatusAsync(dto);

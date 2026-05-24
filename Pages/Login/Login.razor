@@ -5,6 +5,7 @@
 @inject NavigationManager Navigation
 
 @using System.ComponentModel.DataAnnotations
+@using global::Sponsorship.Models
 
 <PageTitle>Login</PageTitle>
 
@@ -27,12 +28,13 @@
             <!-- EMAIL -->
             <div class="mb-3">
                 <label class="form-label">Email</label>
-                <input type="text" 
-                       class="form-control @(emailError != null ? "is-invalid" : "")" 
+                <input type="text"
+                       class="form-control @(emailError != null ? "is-invalid" : "")"
                        @bind="model.Email"
                        @bind:event="oninput"
                        @onblur="ValidateEmail"
                        placeholder="Enter your email" />
+
                 @if (!string.IsNullOrEmpty(emailError))
                 {
                     <small class="text-danger d-block mt-1">@emailError</small>
@@ -42,12 +44,13 @@
             <!-- PASSWORD -->
             <div class="mb-3">
                 <label class="form-label">Password</label>
-                <input type="password" 
-                       class="form-control @(passwordError != null ? "is-invalid" : "")" 
+                <input type="password"
+                       class="form-control @(passwordError != null ? "is-invalid" : "")"
                        @bind="model.Password"
                        @bind:event="oninput"
                        @onblur="ValidatePassword"
                        placeholder="Enter your password" />
+
                 @if (!string.IsNullOrEmpty(passwordError))
                 {
                     <small class="text-danger d-block mt-1">@passwordError</small>
@@ -56,9 +59,9 @@
 
             <!-- REMEMBER -->
             <div class="form-check mb-3">
-                <input type="checkbox" 
-                       class="form-check-input" 
-                       @bind="model.RememberMe" 
+                <input type="checkbox"
+                       class="form-check-input"
+                       @bind="model.RememberMe"
                        id="rememberMe" />
                 <label class="form-check-label" for="rememberMe">Remember me</label>
             </div>
@@ -66,7 +69,7 @@
             <button class="btn btn-primary w-100" type="submit" disabled="@isLoading">
                 @if (isLoading)
                 {
-                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span class="spinner-border spinner-border-sm me-2"></span>
                     <span>Signing in...</span>
                 }
                 else
@@ -91,19 +94,32 @@
     private void ValidateEmail()
     {
         emailError = null;
+
         if (string.IsNullOrWhiteSpace(model.Email))
         {
             emailError = "Email is required";
         }
-        else if (!IsValidEmail(model.Email))
+        else
         {
-            emailError = "Invalid Email Address";
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(model.Email);
+                if (addr.Address != model.Email)
+                {
+                    emailError = "Invalid Email Address";
+                }
+            }
+            catch
+            {
+                emailError = "Invalid Email Address";
+            }
         }
     }
 
     private void ValidatePassword()
     {
         passwordError = null;
+
         if (string.IsNullOrWhiteSpace(model.Password))
         {
             passwordError = "Password is required";
@@ -114,42 +130,32 @@
         }
     }
 
-    private bool IsValidEmail(string email)
-    {
-        try
-        {
-            var addr = new System.Net.Mail.MailAddress(email);
-            return addr.Address == email;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
     private async Task HandleLogin()
     {
-        // Clear previous errors
         errorMessage = null;
         emailError = null;
         passwordError = null;
 
-        // Validate all fields
         ValidateEmail();
         ValidatePassword();
 
-        // If validation fails, don't proceed
         if (!string.IsNullOrEmpty(emailError) || !string.IsNullOrEmpty(passwordError))
         {
             return;
         }
 
         isLoading = true;
+
         var result = await AuthService.SignInAsync(model);
+
         isLoading = false;
 
         if (result.Success)
         {
+            // ✅ FIX: save session correctly (async)
+            await SessionStorage.SetUser(result.Data);
+
+            // redirect
             Navigation.NavigateTo("/home", forceLoad: false);
         }
         else

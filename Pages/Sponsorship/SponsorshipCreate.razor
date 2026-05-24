@@ -142,14 +142,26 @@ else
             </div>
 
             <div class="mt-4">
-                @if (updateModel.StatusCode == "DRA"){
-                <button type="button" class="btn btn-outline-secondary me-2" @onclick="SaveAsDraft">Save As Draft</button>
-                <button type="submit" class="btn btn-primary me-2">Submit Request</button>
+                @if (updateModel.StatusCode == "DRA")
+{
+    <button type="button"
+            class="btn btn-outline-secondary me-2"
+            @onclick='() => UpdateDraftStatus("DRA")'>
+        Save As Draft
+    </button>
+
+    <button type="button"
+            class="btn btn-primary me-2"
+            @onclick='() => UpdateDraftStatus("PMA")'>
+        Submit Request
+    </button>
 }
-                else
-                {
-                <button type="submit" class="btn btn-primary me-2">Update Request</button>
-                }
+else
+{
+    <button type="submit" class="btn btn-primary me-2">
+        Update Request
+    </button>
+}
                 <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
             </div>
         </form>
@@ -383,7 +395,8 @@ else
     private async Task SaveSponsorshipInternal(bool saveAsDraft)
     {
         invalidSubmitMessage = string.Empty;
-        var currentUser = SessionStorage.GetUser();
+        //var currentUser = SessionStorage.GetUser();
+        var currentUser = await SessionStorage.GetUser();
 
         if (isEdit)
         {
@@ -553,4 +566,36 @@ else
     {
         Navigation.NavigateTo("/sponsorships");
     }
+
+    private async Task UpdateDraftStatus(string statusCode)
+{
+    invalidSubmitMessage = string.Empty;
+    ClearFieldErrors();
+
+    if (statusCode == "PMA")
+    {
+        if (!ValidateForm())
+        {
+            invalidSubmitMessage = "Please complete the required fields before submitting.";
+            return;
+        }
+    }
+
+    updateModel.StatusCode = statusCode;
+
+    //var currentUser = SessionStorage.GetUser();
+    var currentUser = await SessionStorage.GetUser();
+
+    if (currentUser?.UserId != null)
+    {
+        updateModel.UpdatedBy = currentUser.UserId;
+    }
+
+    var success = await SponsorshipService.UpdateSponsorshipRequestAsync(updateModel);
+
+    if (success)
+    {
+        Navigation.NavigateTo("/sponsorships");
+    }
+}
 }

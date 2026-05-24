@@ -47,6 +47,30 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadUser();
+
+        // ONLY redirect AFTER session is loaded
+        if (currentUser == null && !IsLoginPage())
+        {
+            Navigation.NavigateTo("/login", forceLoad: true);
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // 🔥 Important fix: re-sync session when layout is reused after login
+        var user = await SessionStorage.GetUser();
+
+        if (user != currentUser)
+        {
+            currentUser = user;
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadUser()
+    {
         isLoading = true;
 
         currentUser = await SessionStorage.GetUser();
@@ -54,12 +78,6 @@
         isLoading = false;
 
         StateHasChanged();
-
-        // ONLY redirect AFTER session is loaded
-        if (currentUser == null && !IsLoginPage())
-        {
-            Navigation.NavigateTo("/login", forceLoad: true);
-        }
     }
 
     private bool IsLoginPage()

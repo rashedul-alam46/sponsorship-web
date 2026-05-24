@@ -31,6 +31,7 @@
             <label class="form-label">Type Code</label>
             <input class="@GetCss("TypeCode")"
                    value="@model.TypeCode"
+                      maxlength="3"
                    @oninput="OnTypeCodeChanged"
                    type="text"
                    disabled="@IsEditMode" />
@@ -119,21 +120,24 @@
         }
     }
 
+    // =========================
+    // LOAD EDIT DATA (FIXED)
+    // =========================
     private async Task LoadForEdit(string code)
     {
         try
         {
-            var response = await Http.GetFromJsonAsync<SponsorshipTypeCreate>(
+            var response = await Http.GetFromJsonAsync<ApiResponse<SponsorshipTypeCreate>>(
                 $"/api/sponsorshiptypes/{code}"
             );
 
-            if (response != null)
+            if (response?.Success == true && response.Data != null)
             {
-                model = response;
+                model = response.Data;
             }
             else
             {
-                errorMessage = "Sponsorship Type not found.";
+                errorMessage = response?.Message ?? "Sponsorship Type not found.";
             }
         }
         catch (Exception ex)
@@ -142,6 +146,9 @@
         }
     }
 
+    // =========================
+    // AUTO UPPERCASE TYPE CODE
+    // =========================
     private void OnTypeCodeChanged(ChangeEventArgs e)
     {
         model.TypeCode = e.Value?.ToString()?.ToUpperInvariant() ?? string.Empty;
@@ -152,6 +159,9 @@
         }
     }
 
+    // =========================
+    // CREATE / UPDATE
+    // =========================
     private async Task HandleSubmit()
     {
         errorMessage = null;
@@ -198,6 +208,9 @@
         }
     }
 
+    // =========================
+    // VALIDATION
+    // =========================
     private bool Validate()
     {
         bool valid = true;
@@ -217,12 +230,13 @@
         return valid;
     }
 
+    // =========================
+    // UI HELPERS
+    // =========================
     private string GetCss(string field)
-    {
-        return fieldErrors.ContainsKey(field)
+        => fieldErrors.ContainsKey(field)
             ? "form-control is-invalid"
             : "form-control";
-    }
 
     private bool HasError(string field)
         => fieldErrors.ContainsKey(field);

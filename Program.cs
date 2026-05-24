@@ -10,11 +10,18 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
+builder.Services.AddScoped(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = config["ApiSettings:BaseUrl"];
 
-// Bind ApiSettings from appsettings.json
-var apiSettings = new ApiSettings();
-builder.Configuration.GetSection("ApiSettings").Bind(apiSettings);
-builder.Services.AddSingleton(apiSettings);
+    return new HttpClient
+    {
+        BaseAddress = new Uri(baseUrl!)
+    };
+});
+
+
 
 // Register services for dependency injection
 builder.Services.AddScoped<SponsorshipService>();

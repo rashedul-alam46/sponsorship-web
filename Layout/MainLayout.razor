@@ -70,11 +70,12 @@
 
     private void RedirectIfSessionExpired()
     {
-        var user = SessionStorage.GetUser();
-        if (user == null && !IsLoginOrRegisterPage())
-        {
-            Navigation.NavigateTo("/login", forceLoad: true);
-        }
+         var user = SessionStorage.GetUser();
+
+    if (user == null && !IsLoginOrRegisterPage())
+    {
+        Navigation.NavigateTo("/login");
+    }
     }
 
     private bool IsLoginOrRegisterPage()

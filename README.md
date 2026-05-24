@@ -1,6 +1,7 @@
 # Sponsorship Web (Frontend)
 
 ## 📌 Overview
+
 Sponsorship Web is a **Blazor WebAssembly frontend application** for the Sponsorship Management System.  
 It provides a clean, responsive UI for managing sponsorship requests, approvals, and workflows through role-based access control.
 
@@ -26,28 +27,28 @@ The application communicates with the **Sponsorship Backend API** to perform all
 Sponsorship.Web/
 │
 ├── Pages/
-│ ├── Auth/
+│ ├── Login/
 │ │ └── Login.razor
 │ ├── Sponsorship/
+│ │ ├── SponsorshipCreate.razor
+│ │ ├── SponsorshipHistoryg.razor
 │ │ ├── SponsorshipList.razor
-│ │ ├── SponsorshipForm.razor
-│ │ └── SponsorshipDetails.razor
+│ │ └── SponsorshipView.razor
 │ ├── SponsorshipTypes/
-│ │ └── SponsorshipTypes.razor
+│ │ ├── SponsorshiptypeCreate.razor
+│ │ └── SponsorshiptypeList.razor
 │
 ├── Services/
-│ ├── AuthService.cs
+│ ├── AccountAuthService.cs
 │ ├── SponsorshipService.cs
+│ ├── SponsorshipTypeService.cs
 │ └── DropdownService.cs
 │
 ├── Models/
-│ ├── DTOs/
-│ └── ViewModels/
 │
-├── Shared/
+├── Layout/
 │ ├── MainLayout.razor
-│ ├── NavMenu.razor
-│ └── LoadingSpinner.razor
+│ └── NavMenu.razor
 │
 ├── wwwroot/
 │ ├── css/
@@ -57,3 +58,26 @@ Sponsorship.Web/
 └── Program.cs
 ```
 
+---
+
+## 👤 Sample Login Users
+
+You can use the following sample credentials for testing:
+
+| Role      | Email         | Password |
+| --------- | ------------- | -------- |
+| System    | sys@test.com  | 123456   |
+| Manager   | man@test.com  | 123456   |
+| Finance   | fin@test.com  | 123456   |
+| Requestor | user@test.com | 123456   |
+
+---
+
+## ▶️ How to Run the Frontend
+
+```bash
+cd Sponsorship.Web
+dotnet restore
+dotnet build
+dotnet run
+```

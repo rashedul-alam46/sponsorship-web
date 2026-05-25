@@ -7,9 +7,8 @@ RUN dotnet restore SponsorshipWeb.csproj
 RUN dotnet publish SponsorshipWeb.csproj -c Release -o /app/publish
 
 FROM nginx:alpine
-WORKDIR /usr/share/nginx/html
 
-COPY --from=build /app/publish/wwwroot .
+COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
